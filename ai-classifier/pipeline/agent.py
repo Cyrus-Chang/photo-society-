@@ -19,6 +19,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from .safety import check_input, sanitize_output
+
 MODEL_DIR = Path(os.environ.get("MODEL_DIR", "models"))
 INDEX_PATH = MODEL_DIR / "works.embed.npz"
 MANIFEST_PATH = MODEL_DIR / "works.manifest.json"
@@ -165,6 +167,25 @@ def run_agent(text: str, top_n: int = 3, state: dict[str, Any] | None = None) ->
         return {"ok": False, "error": rt["error"], "toolTrace": []}
 
     trace: list[dict[str, Any]] = []
+    # 安全门放在最前面：偷拍/隐私、绕过平台私单、Prompt 注入都在这拦，不进检索也不进 LLM
+    guard = check_input(text)
+    trace.append({"tool": "safety_check", "args": {"chars": len(text)}, "result": guard})
+    if not guard["ok"]:
+        return {
+            "ok": False,
+            "blocked": True,
+            "action": guard["action"],
+            "flags": guard["flags"],
+            "error": guard["note"],
+            "slots": None,
+            "candidates": [],
+            "reply": guard["note"],
+            "summary": guard["note"],
+            "warnings": [],
+            "toolTrace": trace,
+            "latencyMs": round((time.perf_counter() - started) * 1000, 1),
+        }
+
     slots = parse_request(text)
     trace.append({"tool": "parse_request", "args": {"text": text}, "result": slots})
 
@@ -272,6 +293,9 @@ def run_agent(text: str, top_n: int = 3, state: dict[str, Any] | None = None) ->
         else f"按「{condition}」没有找到足够接近的作品，建议放宽风格或城市。"
     )
     llm_line = _llm_open_line({"condition": condition, "candidates": candidates}) if candidates else None
+    if llm_line:
+        # 输出侧安全：模型可能自己编出联系方式或外链，落盘前一律裁掉
+        llm_line = sanitize_output(llm_line)["text"]
     trace.append({"tool": "llm_open_line", "args": {"configured": bool(os.environ.get("LLM_API_KEY"))}, "result": {"used": bool(llm_line)}})
 
     # 诚实提示：库里没有该城市的图时不能装作匹配到了（作品库 44 张里只有 4 个城市）
@@ -288,6 +312,7 @@ def run_agent(text: str, top_n: int = 3, state: dict[str, Any] | None = None) ->
     return {
         "ok": True,
         "mode": "llm+rule" if llm_line else "rule",
+        "safety": guard,
         "slots": slots,
         "query": query,
         "candidates": candidates,

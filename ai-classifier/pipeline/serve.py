@@ -367,6 +367,38 @@ def models() -> Dict[str, Any]:
             for k, v in _state["heads"].items()}
 
 
+class TextRequest(BaseModel):
+    text: str
+    k: int = 5
+
+
+@app.post("/v1/search")
+def search(body: TextRequest) -> Dict[str, Any]:
+    """纯检索：文本 → 作品向量 top-k（RAG 的检索端，单独暴露便于 MCP/评测复用）。"""
+    from .agent import get_runtime
+
+    runtime = get_runtime()
+    if runtime.get("error"):
+        return {"ok": False, "error": runtime["error"]}
+    index = runtime.get("index")
+    if index is None:
+        return {"ok": False, "error": "索引未建立，先跑 tools/build_works_index.py"}
+    hits = index.search_text(body.text, _state, k=max(1, min(body.k, 20)))
+    return {"ok": True, "count": len(hits), "indexed": len(index), "hits": hits}
+
+
+class SafetyRequest(BaseModel):
+    text: str
+    confidence: Optional[float] = None
+
+
+@app.post("/v1/safety/check")
+def safety_check(body: SafetyRequest) -> Dict[str, Any]:
+    from .safety import check_input
+
+    return check_input(body.text, body.confidence)
+
+
 class CopyRequest(BaseModel):
     title: str = ""
     styles: List[str] = []
@@ -431,6 +463,8 @@ _BFF_ALIASES = [
     ("/api/v1/ai/agent/match", agent_match, ["POST"]),
     ("/api/v1/ai/agent/status", agent_status, ["GET"]),
     ("/api/v1/ai/copywrite", copywrite, ["POST"]),
+    ("/api/v1/ai/search", search, ["POST"]),
+    ("/api/v1/ai/safety/check", safety_check, ["POST"]),
 ]
 for _path, _endpoint, _methods in _BFF_ALIASES:
     app.add_api_route(_path, _endpoint, methods=_methods, include_in_schema=False)

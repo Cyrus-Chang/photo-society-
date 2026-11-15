@@ -66,6 +66,7 @@ $env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
 | 弹窗内「生成介绍」 | `POST /api/v1/ai/copywrite` | 分类标签 → 3 个标题 + 简介 + 标签；配 key 走千问/DeepSeek 兼容接口，未配 key 明确返回 `mode=rule` 模板兜底，不伪装模型输出 |
 | `/match` 撮合台 | `POST /api/v1/ai/agent/match` | 一句话需求 → 解析槽位 → 向量检索（44 张作品）→ 查档期 → 候选摄影师 + 理由；返回 `toolTrace` 可展开核对 |
 | 诊断 | `GET /api/v1/ai/health`、`GET /api/v1/ai/agent/status` | 模型版本、风格留一法准确率、索引条数、LLM 是否已配置 |
+| 安全闸门 | `POST /api/v1/ai/safety/check` | 三档处置：`pass` / `review`（转人工）/ `block`；撮合与文案链路都过这道闸 |
 
 实测（无头 Edge + CDP，非估算）：
 
@@ -74,6 +75,28 @@ $env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
 - 作品向量索引 **44 条**（另有 6 张 unsplash 外链未纳入，已如实记录）；6 类城市分布：北京 15 / 南京 11 / 西安 11 / 上海 6。
 
 > 配置真实 LLM：设 `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY`（千问默认 `https://dashscope.aliyuncs.com/compatible-mode/v1` + `qwen-plus`，DeepSeek 换成 `https://api.deepseek.com/v1` + `deepseek-chat` 即可，代码不动）。密钥只给 Python 服务读，前端永远不碰。
+
+## AI 安全（不是词表堆砌，按真实风险面设计）
+
+摄影约拍平台的真实风险不是"涉政涉黄"，而是：**偷拍 / 隐私**、**绕过平台私下交易**、**Prompt 注入**、**输出泄漏联系方式**。处置分三档，全部可解释：
+
+| 档位 | 触发 | 行为 |
+|---|---|---|
+| `pass` | 无命中 | 直接放行 |
+| `review` | 命中低危词（私房/更衣/肖像权…）或模型置信度低于阈值 | 转人工复核，不拦断 |
+| `block` | 命中高危词（偷拍/不让对方知道/私下转账/绕过平台）或注入模式（忽略以上指令、system prompt…） | 直接拒绝并说明原因 |
+
+输出侧另有一道：文案里出现手机号、微信号、外链、邮箱一律替换为「（已隐藏联系方式）」。撮合 Agent 的安全门在**最前面**——被拦的需求既不进检索也不进 LLM。
+
+## MCP 接入（工具集成）
+
+`ai-classifier/mcp_server.py` 零依赖（只用标准库）的 stdio MCP server，暴露三个工具：
+
+- `match_photographers(text, topN)` — 一句话撮合
+- `search_works(text)` — 作品向量检索
+- `safety_check(text)` — 复用同一套安全规则
+
+它**不重复实现模型逻辑**，只做协议适配并转发到 `AI_SERVICE_URL`（默认 8100），部署时两层可各自缩放。客户端把 command 指向 `.venv\Scripts\python.exe` + 该文件即可。
 
 ## 模型指标的诚实口径
 - **风格（13 类 · 锚图原型匹配）**：留一法准确率 **0.706**，同批图零样本 **0.331**，随机基线 0.077。风格属于分布外概念，文本 prompt 覆盖不到，必须靠参考图——这是本项目最可讲的一个数字。

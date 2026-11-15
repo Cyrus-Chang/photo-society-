@@ -109,9 +109,21 @@ def _call_llm(payload: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
 
+def _sanitize_result(result: dict[str, Any]) -> dict[str, Any]:
+    """输出侧安全：模型可能编出联系方式/外链，落进作品文案前一律裁掉。"""
+    from .safety import sanitize_output
+
+    intro = sanitize_output(result.get("intro", ""))
+    result["intro"] = intro["text"]
+    result["titles"] = [sanitize_output(item)["text"] for item in result.get("titles", [])]
+    if intro["filtered"]:
+        result["note"] = (result.get("note") or "") + "（输出已过滤联系方式）"
+    return result
+
+
 def generate_copy(payload: dict[str, Any]) -> dict[str, Any]:
     result = _call_llm(payload)
     if result:
-        return result
+        return _sanitize_result(result)
     reason = "" if not llm_configured() else "LLM 调用失败，已退回模板兜底"
-    return _rule_fallback(payload, reason)
+    return _sanitize_result(_rule_fallback(payload, reason))
