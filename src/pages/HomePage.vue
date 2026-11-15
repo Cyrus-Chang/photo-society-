@@ -5,6 +5,8 @@ import {
   Info, LoaderCircle, MapPin, MoveUpRight, Plus, ScanLine, Sparkles, Upload, Users, X
 } from 'lucide-vue-next'
 import { localWorkUrl } from '../utils/media'
+import { classifyImage } from '../services/api'
+import { styleLabel, toneLabel, type AiClassifyResult } from '../utils/aiLabels'
 import { spiralWorks, works } from '../data/mock'
 import heroBackground from '../assets/hero-stars.webp'
 import bundBackground from '../assets/works/bund-night.jpg'
@@ -78,6 +80,12 @@ const uploadTitle = ref('')
 const uploadDescription = ref('')
 const useAiCopy = ref(true)
 const reviewState = ref<'idle' | 'checking' | 'approved' | 'submitted'>('idle')
+/* AI 识别结果：风格走 13 类锚图原型、影调走 9 条色彩规则；题材 3 类内测中，不进界面 */
+const aiResult = ref<AiClassifyResult | null>(null)
+const aiError = ref('')
+const aiStyleTags = computed(() => (aiResult.value?.style ?? []).slice(0, 2).map((tag) => ({ code: tag.code, label: styleLabel(tag.code), percent: tag.confidence ? Math.round(tag.confidence * 100) : 0 })))
+const aiToneTags = computed(() => (aiResult.value?.tone ?? []).map((tag) => ({ code: tag.code, label: toneLabel(tag.code) })))
+const aiLatency = computed(() => (aiResult.value?.latencyMs ? `${Math.round(aiResult.value.latencyMs)}ms` : ''))
 let wheelTimer: number | undefined
 let reviewTimer: number | undefined
 let detailSwapTimer: number | undefined
@@ -397,6 +405,8 @@ function closeUpload() {
   uploadTitle.value = ''
   uploadDescription.value = ''
   reviewState.value = 'idle'
+  aiResult.value = null
+  aiError.value = ''
 }
 
 function chooseFile() { uploadInput.value?.click() }
@@ -409,6 +419,8 @@ function handleFile(event: Event) {
   if (uploadPreview.value.startsWith('blob:')) URL.revokeObjectURL(uploadPreview.value)
   uploadPreview.value = URL.createObjectURL(file)
   reviewState.value = 'idle'
+  aiResult.value = null
+  aiError.value = ''
 }
 
 function generateCopy() {
@@ -418,8 +430,17 @@ function generateCopy() {
 function runReview() {
   if (!uploadFile.value) { chooseFile(); return }
   reviewState.value = 'checking'
-  window.clearTimeout(reviewTimer)
-  reviewTimer = window.setTimeout(() => { reviewState.value = 'approved' }, 1700)
+  aiResult.value = null
+  aiError.value = ''
+  void classifyImage(uploadFile.value)
+    .then((result) => {
+      aiResult.value = result
+      reviewState.value = 'approved'
+    })
+    .catch((error: unknown) => {
+      reviewState.value = 'idle'
+      aiError.value = error instanceof Error ? error.message : '识别失败'
+    })
 }
 
 function submitForReview() {
@@ -620,6 +641,6 @@ onMounted(async () => {
 
     <footer class="footer-v2 spiral-followup"><div class="footer-v2-brand"><span>拍</span><div><strong>{{ brand.cn }}</strong><small>{{ brand.en }}</small></div></div><p>让每一次想拍照，都遇见刚好能到场的人。</p><span>© 2026 拍社影像</span></footer>
 
-    <Transition name="modal-fade"><div v-if="showUpload" class="upload-backdrop" @click.self="closeUpload"><section class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title"><button class="modal-close" type="button" aria-label="关闭" @click="closeUpload"><X :size="19" /></button><div class="upload-modal-head"><span class="spiral-kicker"><span class="kicker-line" />ADD TO THE FIELD</span><h2 id="upload-title">把你的现场放进螺旋</h2><p>只需要一张照片。署名、标签和机型会被完整保留，其他文字交给你或 AI。</p></div><div class="upload-modal-body"><div class="upload-preview" :class="{ 'has-image': uploadPreview }" @click="chooseFile"><img v-if="uploadPreview" :src="uploadPreview" alt="待上传照片预览" /><div v-else><Upload :size="25" /><strong>拖入或选择一张照片</strong><small>JPG / PNG · 建议长边 1600px 以上</small></div><input ref="uploadInput" type="file" accept="image/jpeg,image/png,image/webp" hidden @change="handleFile" /></div><div class="upload-fields"><label><span>作品标题</span><input v-model="uploadTitle" placeholder="例如：雨停之后的街角" /></label><label><span>这张照片的介绍</span><textarea v-model="uploadDescription" rows="5" placeholder="写下你想留下的那句话，或交给 AI 帮你整理。" /></label><div class="ai-copy-row"><button class="ai-toggle" :class="{ active: useAiCopy }" type="button" @click="useAiCopy = !useAiCopy"><span class="toggle-dot" /><span>允许 AI 美化文字</span></button><button class="ai-generate" type="button" :disabled="!useAiCopy" @click="generateCopy"><Sparkles :size="14" /> 生成介绍</button></div><div class="upload-exclude"><ScanLine :size="15" /><span>AI 只生成照片相关描述，不会修改作者、标签和机型。</span></div></div></div><div class="upload-review-bar"><div class="review-status" :class="`is-${reviewState}`"><template v-if="reviewState === 'idle'"><Info :size="16" /><span>上传后先通过识别图片模型检查</span></template><template v-else-if="reviewState === 'checking'"><LoaderCircle class="spin" :size="16" /><span>模型正在检查画面内容与敏感元素…</span></template><template v-else-if="reviewState === 'approved'"><Check :size="16" /><span>识别通过，可以提交人工审核</span></template><template v-else><Check :size="16" /><span>已提交，等待人工审核</span></template></div><div class="upload-actions"><button class="upload-ghost" type="button" @click="closeUpload">稍后再说</button><button class="upload-submit" type="button" :disabled="reviewState === 'checking'" @click="runReview">{{ reviewState === 'approved' ? '提交人工审核' : reviewState === 'checking' ? '检查中…' : '先检查这张照片' }}</button></div></div></section></div></Transition>
+    <Transition name="modal-fade"><div v-if="showUpload" class="upload-backdrop" @click.self="closeUpload"><section class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title"><button class="modal-close" type="button" aria-label="关闭" @click="closeUpload"><X :size="19" /></button><div class="upload-modal-head"><span class="spiral-kicker"><span class="kicker-line" />ADD TO THE FIELD</span><h2 id="upload-title">把你的现场放进螺旋</h2><p>只需要一张照片。署名、标签和机型会被完整保留，其他文字交给你或 AI。</p></div><div class="upload-modal-body"><div class="upload-preview" :class="{ 'has-image': uploadPreview }" @click="chooseFile"><img v-if="uploadPreview" :src="uploadPreview" alt="待上传照片预览" /><div v-else><Upload :size="25" /><strong>拖入或选择一张照片</strong><small>JPG / PNG · 建议长边 1600px 以上</small></div><input ref="uploadInput" type="file" accept="image/jpeg,image/png,image/webp" hidden @change="handleFile" /></div><div class="upload-fields"><label><span>作品标题</span><input v-model="uploadTitle" placeholder="例如：雨停之后的街角" /></label><label><span>这张照片的介绍</span><textarea v-model="uploadDescription" rows="5" placeholder="写下你想留下的那句话，或交给 AI 帮你整理。" /></label><div class="ai-copy-row"><button class="ai-toggle" :class="{ active: useAiCopy }" type="button" @click="useAiCopy = !useAiCopy"><span class="toggle-dot" /><span>允许 AI 美化文字</span></button><button class="ai-generate" type="button" :disabled="!useAiCopy" @click="generateCopy"><Sparkles :size="14" /> 生成介绍</button></div><div class="upload-exclude"><ScanLine :size="15" /><span>AI 只生成照片相关描述，不会修改作者、标签和机型。</span></div></div></div><div v-if="aiError" class="ai-result-panel is-error" role="status"><p class="ai-result-error">{{ aiError }}</p><small class="ai-result-note">风格与影调来自本地模型；服务没起来时这里不会伪造标签。</small></div><div v-else-if="aiStyleTags.length || aiToneTags.length" class="ai-result-panel" role="status"><div class="ai-tag-group"><span class="ai-tag-label">STYLE</span><span v-for="tag in aiStyleTags" :key="tag.code" class="ai-tag is-style">{{ tag.label }}<b v-if="tag.percent">{{ tag.percent }}%</b></span></div><div class="ai-tag-group"><span class="ai-tag-label">TONE</span><span v-for="tag in aiToneTags" :key="tag.code" class="ai-tag is-tone">{{ tag.label }}</span><span v-if="aiLatency" class="ai-tag is-meta">{{ aiLatency }}</span></div><small class="ai-result-note">风格与影调由本地模型识别；题材识别仅内测，不在界面展示。</small></div><div class="upload-review-bar"><div class="review-status" :class="`is-${reviewState}`"><template v-if="reviewState === 'idle'"><Info :size="16" /><span>上传后先通过识别图片模型检查</span></template><template v-else-if="reviewState === 'checking'"><LoaderCircle class="spin" :size="16" /><span>模型正在检查画面内容与敏感元素…</span></template><template v-else-if="reviewState === 'approved'"><Check :size="16" /><span>识别通过，可以提交人工审核</span></template><template v-else><Check :size="16" /><span>已提交，等待人工审核</span></template></div><div class="upload-actions"><button class="upload-ghost" type="button" @click="closeUpload">稍后再说</button><button class="upload-submit" type="button" :disabled="reviewState === 'checking'" @click="reviewState === 'approved' ? submitForReview() : runReview()">{{ reviewState === 'approved' ? '提交人工审核' : reviewState === 'checking' ? '检查中…' : '先检查这张照片' }}</button></div></div></section></div></Transition>
   </div>
 </template>

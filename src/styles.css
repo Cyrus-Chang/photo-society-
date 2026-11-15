@@ -2005,3 +2005,43 @@ html:has(.spiral-page) { scroll-snap-type: none; }
   .hp-inner.hp-final { padding-top: 90px; padding-bottom: 90px; }
 }
 
+/* ===== 修正层 13（2026-11-15 18:1x）：上传弹窗接真实 AI 识别，展示分层标签 =====
+   风格（13 类锚图原型，留一法 0.706）+ 影调（9 条色彩规则）来自本地模型；
+   题材 3 类对人像会误判，按约定不进界面。服务不可用时只显示错误，不伪造标签（C2）。 */
+.ai-result-panel {
+  display: grid;
+  gap: 9px;
+  margin: 0 0 12px;
+  padding: 13px 15px;
+  border: 1px solid rgba(237, 241, 244, .12);
+  border-radius: 12px;
+  background: rgba(237, 241, 244, .035);
+}
+.ai-result-panel.is-error {
+  border-color: rgba(233, 139, 107, .34);
+  background: rgba(233, 139, 107, .07);
+}
+.ai-tag-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ai-tag-label {
+  min-width: 40px;
+  color: rgba(237, 241, 244, .42);
+  font: 9px/1 ui-monospace, Consolas, monospace;
+  letter-spacing: .2em;
+}
+.ai-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: default;
+}
+.ai-tag.is-style { border: 1px solid rgba(233, 139, 107, .44); background: rgba(233, 139, 107, .13); color: #ffd9c9; }
+.ai-tag.is-tone { border: 1px solid rgba(237, 241, 244, .18); background: rgba(237, 241, 244, .05); color: rgba(238, 243, 245, .8); }
+.ai-tag.is-meta { padding-left: 2px; border: 1px solid transparent; color: rgba(237, 241, 244, .38); font: 10px/1 ui-monospace, Consolas, monospace; }
+.ai-tag b { font: 10px/1 ui-monospace, Consolas, monospace; opacity: .7; }
+.ai-result-error { margin: 0; color: #f3a184; font-size: 12px; line-height: 1.6; }
+.ai-result-note { color: rgba(237, 241, 244, .38); font-size: 10px; line-height: 1.6; }
+

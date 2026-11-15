@@ -46,3 +46,48 @@ export async function getOrders() {
 export async function createBooking(payload: { workId: string; date: string; time: string }) {
   try { return await request<{ id: string; status: string }>('/bookings', { method: 'POST', headers: { 'Idempotency-Key': `demo-${payload.workId}-${payload.date}` }, body: JSON.stringify(payload) }) } catch { await pause(480); return { id: 'order-new', ...payload, status: 'pending' } }
 }
+
+/* ===== AI 图片识别（2026-11-15 接入真实模型服务）=====
+   走 `/api/v1/ai/classify`：开发期由 vite proxy 转给 127.0.0.1:8100 的 FastAPI 薄 BFF。
+   不能复用上面的 request()，因为它固定 Content-Type: application/json，而这里是 multipart。
+   失败不静默回退假标签——识别没成就要如实告诉用户，否则等于伪造 AI 结果（C2）。 */
+export interface AiTag {
+  code: string
+  confidence?: number
+  source?: string
+}
+
+export interface AiClassifyResult {
+  style?: AiTag[]
+  tone?: AiTag[]
+  subject?: AiTag[]
+  fallback?: string
+  latencyMs?: number
+  modelVersion?: Record<string, string>
+}
+
+/** 冷启动（torch + CLIP）约 45s，留 30s 让用户先看到超时提示而不是无限转圈 */
+const CLASSIFY_TIMEOUT = 30000
+
+export async function classifyImage(file: File): Promise<AiClassifyResult> {
+  const controller = new AbortController()
+  const timer = window.setTimeout(() => controller.abort(), CLASSIFY_TIMEOUT)
+  const form = new FormData()
+  form.append('file', file)
+  try {
+    const response = await fetch(`${apiBase}/ai/classify`, { method: 'POST', body: form, signal: controller.signal })
+    if (!response.ok) throw new Error(`识别服务返回 ${response.status}`)
+    const payload = await response.json()
+    return (payload?.data ?? payload) as AiClassifyResult
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('识别超时（模型可能正在冷启动，首次约 45 秒）')
+    }
+    if (error instanceof TypeError) {
+      throw new Error('连不上识别服务：确认 8100 已启动，且 dev 代理生效')
+    }
+    throw error instanceof Error ? error : new Error('识别失败')
+  } finally {
+    window.clearTimeout(timer)
+  }
+}
