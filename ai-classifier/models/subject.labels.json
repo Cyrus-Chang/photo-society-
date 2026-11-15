@@ -1,0 +1,14 @@
+{
+  "task": "subject",
+  "classes": [
+    "ARCHITECTURE",
+    "LANDSCAPE",
+    "STILL_FOOD"
+  ],
+  "multi": true,
+  "feature_layout": [
+    "clip512",
+    "color24"
+  ],
+  "clip_model": "openai/clip-vit-base-patch32"
+}

@@ -1,0 +1,189 @@
+{
+  "kind": "prototype",
+  "feature_layout": [
+    "clip512_l2norm",
+    "color24"
+  ],
+  "clip_model": "openai/clip-vit-base-patch32",
+  "classes": [
+    {
+      "code": "JAPANESE",
+      "n": 7,
+      "cohesion": 0.8791738152503967,
+      "worst_cos": 0.8552805185317993,
+      "worst_file": "41e3ba03d5182c11a43234af60d4913e.jpg",
+      "dir": "日系"
+    },
+    {
+      "code": "KOREAN",
+      "n": 9,
+      "cohesion": 0.8210604190826416,
+      "worst_cos": 0.6542558670043945,
+      "worst_file": "fc1c6bd3bf832fbbbcb331b01859ddf2.jpg",
+      "dir": "韩系"
+    },
+    {
+      "code": "INS",
+      "n": 6,
+      "cohesion": 0.8286290168762207,
+      "worst_cos": 0.7368509769439697,
+      "worst_file": "5d49db30e4e8ede52cf6e060b451a753.jpg",
+      "dir": "ins风"
+    },
+    {
+      "code": "FRESH",
+      "n": 11,
+      "cohesion": 0.8372194170951843,
+      "worst_cos": 0.762837290763855,
+      "worst_file": "5af22e4b44fa7d4bab83f10f15c3f2a1.jpg",
+      "dir": "清新"
+    },
+    {
+      "code": "FILM",
+      "n": 17,
+      "cohesion": 0.8360446691513062,
+      "worst_cos": 0.7620058655738831,
+      "worst_file": "8f286831e4baede75d031308e140325b.jpg",
+      "dir": "胶片"
+    },
+    {
+      "code": "VINTAGE",
+      "n": 11,
+      "cohesion": 0.8079193234443665,
+      "worst_cos": 0.6635875701904297,
+      "worst_file": "cd29840274d16253f89265da0d903d39.jpg",
+      "dir": "复古"
+    },
+    {
+      "code": "CINEMATIC",
+      "n": 16,
+      "cohesion": 0.8454617261886597,
+      "worst_cos": 0.734879195690155,
+      "worst_file": "de06249e972cff54d6863d4d19550434.jpg",
+      "dir": "电影感"
+    },
+    {
+      "code": "DARK_MOOD",
+      "n": 12,
+      "cohesion": 0.8320222496986389,
+      "worst_cos": 0.7203717231750488,
+      "worst_file": "aecf94428bfa3de5662931ceedf7d576.jpg",
+      "dir": "暗调"
+    },
+    {
+      "code": "MONO",
+      "n": 10,
+      "cohesion": 0.886069118976593,
+      "worst_cos": 0.8554280400276184,
+      "worst_file": "78377e067b3cfb2b04a70f461f6728d8.jpg",
+      "dir": "黑白"
+    },
+    {
+      "code": "BLUE_TONE",
+      "n": 8,
+      "cohesion": 0.8399791717529297,
+      "worst_cos": 0.7471736669540405,
+      "worst_file": "01487b3d35c28eebee5b5d5d3a01ef16.jpg",
+      "dir": "蓝调"
+    },
+    {
+      "code": "HK_RETRO",
+      "n": 10,
+      "cohesion": 0.823097825050354,
+      "worst_cos": 0.772851824760437,
+      "worst_file": "eb8d9c8585b6038ffde8f8ae8226467a.jpg",
+      "dir": "港风"
+    },
+    {
+      "code": "CYBER",
+      "n": 7,
+      "cohesion": 0.8726294636726379,
+      "worst_cos": 0.741946816444397,
+      "worst_file": "cc68544d710c545d9e647a86c27f015a.jpg",
+      "dir": "赛博"
+    },
+    {
+      "code": "WESTERN",
+      "n": 12,
+      "cohesion": 0.8381237387657166,
+      "worst_cos": 0.7778118848800659,
+      "worst_file": "fa331e4b24926109be753ff856ad0eab.jpg",
+      "dir": "欧美"
+    }
+  ],
+  "misplaced": [
+    {
+      "true": "KOREAN",
+      "closer_to": "HK_RETRO",
+      "file": "fc1c6bd3bf832fbbbcb331b01859ddf2.jpg",
+      "own": 0.6543,
+      "other": 0.7058
+    },
+    {
+      "true": "FILM",
+      "closer_to": "CYBER",
+      "file": "8f286831e4baede75d031308e140325b.jpg",
+      "own": 0.762,
+      "other": 0.8001
+    },
+    {
+      "true": "VINTAGE",
+      "closer_to": "BLUE_TONE",
+      "file": "cd29840274d16253f89265da0d903d39.jpg",
+      "own": 0.6636,
+      "other": 0.6926
+    },
+    {
+      "true": "VINTAGE",
+      "closer_to": "KOREAN",
+      "file": "e866924c0f9c3cda7853a7d68e366ddd.jpg",
+      "own": 0.7997,
+      "other": 0.8413
+    },
+    {
+      "true": "DARK_MOOD",
+      "closer_to": "MONO",
+      "file": "9baf8af70d8fd53aa6e116bca679e2eb.jpg",
+      "own": 0.8022,
+      "other": 0.8342
+    },
+    {
+      "true": "DARK_MOOD",
+      "closer_to": "FILM",
+      "file": "aecf94428bfa3de5662931ceedf7d576.jpg",
+      "own": 0.7204,
+      "other": 0.7997
+    },
+    {
+      "true": "DARK_MOOD",
+      "closer_to": "MONO",
+      "file": "e2ddcdfa10da263a3478c8b3a29369c8.jpg",
+      "own": 0.813,
+      "other": 0.8925
+    },
+    {
+      "true": "DARK_MOOD",
+      "closer_to": "WESTERN",
+      "file": "f847af2989a6d7c13f564be991dec0b9.jpg",
+      "own": 0.8092,
+      "other": 0.8306
+    }
+  ],
+  "outliers": [
+    {
+      "code": "KOREAN",
+      "file": "fc1c6bd3bf832fbbbcb331b01859ddf2.jpg",
+      "cos": 0.6543
+    },
+    {
+      "code": "VINTAGE",
+      "file": "cd29840274d16253f89265da0d903d39.jpg",
+      "cos": 0.6636
+    }
+  ],
+  "closest_pair": {
+    "a": "FRESH",
+    "b": "VINTAGE",
+    "cos": 0.9429
+  }
+}

@@ -1,0 +1,64 @@
+【BLUE_TONE】
+定义：整体偏蓝或青蓝：LAB 的 b* 均值为负、暗部明显偏冷、白平衡偏冷。可以是亮的也可以是暗的
+别混进来：与 MONO 区分：仍有彩；与 JAPANESE 区分：日系是青绿+高明度，蓝调以蓝相为主且可压暗；与 DARK_MOOD 区分：蓝调是色相偏移，暗调是明度低
+英文提示：a photograph with a strong blue color cast and cold tone
+
+【INS】
+定义：高亮、低对比、黑位抬升（暗部不死黑）、画面干净留白、轻暖白平衡、构图规整、有几何秩序
+别混进来：与 JAPANESE 区分：ins 强调留白与几何，日系强调空气感与柔光；ins 通常更锐更『干净』
+英文提示：a clean bright minimal instagram style photograph with negative space
+
+【JAPANESE】
+定义：低饱和、高明度、柔光、轻微高光溢出、带青绿倾向、空气感与通透感
+别混进来：与 INS 区分：日系不追求锐利与大面积留白；与 FILM 区分：日系没有明显颗粒
+英文提示：a soft airy japanese style photograph, low contrast, bright, gentle light
+
+【KOREAN】
+定义：奶油感：皮肤通透白皙偏粉、浅色调、低对比、黑位轻微抬升、画面干净、锐度中高。多用于棚拍与咖啡馆外景
+别混进来：与 JAPANESE 区分：韩系偏粉白且更锐更干净，日系偏青绿且有空气感/灰雾/颗粒；与 INS 区分：韩系更强调人物皮肤质感，ins 更强调留白与几何
+英文提示：a korean style portrait with creamy skin tones, bright and clean, low contrast
+
+【WESTERN】
+定义：欧美杂志/时尚 editorial 感：高反差、硬光、强轮廓阴影、暖中性色或冷蓝背景、妆造强烈、姿态张扬
+别混进来：与 DARK_MOOD 区分：欧美是高反差（明暗都足），暗调是大面积暗部；与 CINEMATIC 区分：欧美没有统一的青橙调色。★这一类定义最宽，混淆严重时优先拆掉
+英文提示：a western editorial fashion portrait with strong contrast, hard light and bold shadows
+
+【CINEMATIC】
+定义：青橙调色（teal & orange）：暗部偏青、高光偏橙、S 形对比曲线、两端不裁切（保留高光与暗部细节）、常有宽画幅构图
+别混进来：与 CYBER 区分：赛博是青+品红霓虹，电影感是青+橙；与 WESTERN 区分：电影感有明确的双色对冲调色
+英文提示：a cinematic photograph with teal and orange color grading and soft highlights
+
+【FRESH】
+定义：高明度、低饱和、通透、浅色、阳光感、干净。明度比日系更高、更白亮
+别混进来：与 JAPANESE 区分：清新更亮更白，日系有青绿调与灰雾。★两者可共存：多标签下允许同时为真，不必强行二选一
+英文提示：a fresh bright airy photograph with high key light and clean pastel colors
+
+【FILM】
+定义：颗粒感明显、黑位抬升、青影暖高光的色彩偏移（交叉冲洗感）、对比柔和、高光有轻微溢出
+别混进来：与 JAPANESE 区分：胶片看颗粒与黑位抬升，日系看柔光与通透；与 HK_RETRO 区分：港风的绿青在中间调更重
+英文提示：a film emulation photograph with visible grain and faded shadows
+
+【DARK_MOOD】
+定义：低调摄影：大面积暗部、单一光源、情绪压抑、明度均值低、阴影占比高
+别混进来：与 BLUE_TONE 区分：暗调是明度低（可以是暖的），蓝调是色相偏移（可以是亮的）；与 MONO 区分：可能仍是彩色
+英文提示：a moody low key photograph with deep shadows and a single light source
+
+【MONO】
+定义：完全去色，饱和度接近 0，仅灰阶
+别混进来：硬规则可判：S_mean < 0.04 直接命中，优先级最高
+英文提示：a black and white photograph
+
+【HK_RETRO】
+定义：偏绿青的中间调、暖肤色、硬光、年代颗粒、港片式构图与人物姿态
+别混进来：与 FILM 区分：港风的绿青集中在中间调且与暖肤色形成对冲，胶片是整体色彩偏移；与 JAPANESE 区分：港风对比更高、人物更强势
+英文提示：a hong kong retro style portrait with greenish midtones and warm skin
+
+【CYBER】
+定义：霓虹高饱和、青品对冲、硬光、暗部保留高饱和光斑、夜景/室内霓虹环境
+别混进来：与 DARK_MOOD 区分：赛博暗但高饱和，暗调暗且低饱和；与 BLUE_TONE 区分：赛博是多色霓虹对冲，蓝调是单一蓝相
+英文提示：a cyberpunk photograph with neon lights in cyan and magenta
+
+【VINTAGE】
+定义：褪色感：整体低饱和、黄褐偏移、对比柔和、色彩记忆感陈旧。常见于老照片放大与胶片扫描仿真
+别混进来：与 FILM 区分：复古的核心是色彩年代感（黄褐/褪色），胶片的核心是颗粒与黑位抬升；两者可共存，多标签下允许同时为真；与 CINEMATIC 区分：复古没有青橙对冲
+英文提示：a vintage faded photograph with muted colors, yellow-brown cast and a retro feel

@@ -1,0 +1,9 @@
+[subject] classes=3 train=504 val_macroF1=0.9881 test_macroF1=1.0
+  val: macroF1=0.9881 acc=0.9882 n=85
+    ARCHITECTURE     P=1.000 R=0.964 F1=0.982 n=28
+    LANDSCAPE        P=1.000 R=1.000 F1=1.000 n=29
+    STILL_FOOD       P=0.966 R=1.000 F1=0.983 n=28
+  test: macroF1=1.0 acc=1.0 n=83
+    ARCHITECTURE     P=1.000 R=1.000 F1=1.000 n=27
+    LANDSCAPE        P=1.000 R=1.000 F1=1.000 n=29
+    STILL_FOOD       P=1.000 R=1.000 F1=1.000 n=27

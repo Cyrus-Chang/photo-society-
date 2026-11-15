@@ -1,0 +1,111 @@
+{
+  "kind": "prototype-anchors",
+  "clip_model": "openai/clip-vit-base-patch32",
+  "feature_layout": [
+    "clip512_l2norm",
+    "color24_minus_mean_l2norm"
+  ],
+  "weight_color": 0.02,
+  "loo_accuracy": 0.7059,
+  "loo_nll": 2.5399,
+  "random_baseline": 0.0769,
+  "zeroshot_same_set": 0.331,
+  "classes": [
+    {
+      "code": "JAPANESE",
+      "dir": "日系",
+      "n": 7,
+      "cohesion": 0.8792
+    },
+    {
+      "code": "KOREAN",
+      "dir": "韩系",
+      "n": 9,
+      "cohesion": 0.8211
+    },
+    {
+      "code": "INS",
+      "dir": "ins风",
+      "n": 6,
+      "cohesion": 0.8286
+    },
+    {
+      "code": "FRESH",
+      "dir": "清新",
+      "n": 11,
+      "cohesion": 0.8372
+    },
+    {
+      "code": "FILM",
+      "dir": "胶片",
+      "n": 17,
+      "cohesion": 0.836
+    },
+    {
+      "code": "VINTAGE",
+      "dir": "复古",
+      "n": 11,
+      "cohesion": 0.8079
+    },
+    {
+      "code": "CINEMATIC",
+      "dir": "电影感",
+      "n": 16,
+      "cohesion": 0.8455
+    },
+    {
+      "code": "DARK_MOOD",
+      "dir": "暗调",
+      "n": 12,
+      "cohesion": 0.832
+    },
+    {
+      "code": "MONO",
+      "dir": "黑白",
+      "n": 10,
+      "cohesion": 0.8861
+    },
+    {
+      "code": "BLUE_TONE",
+      "dir": "蓝调",
+      "n": 8,
+      "cohesion": 0.84
+    },
+    {
+      "code": "HK_RETRO",
+      "dir": "港风",
+      "n": 10,
+      "cohesion": 0.8231
+    },
+    {
+      "code": "CYBER",
+      "dir": "赛博",
+      "n": 7,
+      "cohesion": 0.8726
+    },
+    {
+      "code": "WESTERN",
+      "dir": "欧美",
+      "n": 12,
+      "cohesion": 0.8381
+    }
+  ],
+  "temperature_rule": "平均最大概率对齐留一法准确率（不是最小化 NLL）",
+  "mean_max_prob": 0.1319,
+  "confidence": {
+    "rule": "按留一法间隔分档的实测正确率，线性插值",
+    "bin_centers": [
+      0.0065,
+      0.02589,
+      0.04895,
+      0.09513
+    ],
+    "bin_accs": [
+      0.5,
+      0.618,
+      0.794,
+      0.912
+    ],
+    "loo_accuracy": 0.7059
+  }
+}

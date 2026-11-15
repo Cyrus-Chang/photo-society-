@@ -1,0 +1,21 @@
+# 特征与训练
+numpy>=1.24
+pandas>=2.0
+pillow>=10.0
+scikit-learn>=1.3
+
+# CLIP 视觉塔（extract 与 serve 都需要；只调分类头时也必须装，因为推理要现算图像向量）
+torch>=2.0
+transformers>=4.40
+
+# 导出与推理
+onnx>=1.15
+onnxruntime>=1.17
+# torch>=2.15 的 torch.onnx.export 走 dynamo 导出器，内部会 import onnxscript；
+# 缺了它 fit 会在最后一步 ModuleNotFoundError，前面训练全白跑。
+onnxscript>=0.1
+
+# 模型服务
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
