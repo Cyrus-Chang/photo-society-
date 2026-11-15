@@ -54,10 +54,28 @@ $env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
 .\.venv\Scripts\python.exe -m uvicorn pipeline.serve:app --host 127.0.0.1 --port 8100
 ```
 
-冷启动约 45 秒（torch + CLIP）。接口：`POST /v1/classify`、`POST /v1/classify-base64`、`POST /v1/embed`、`GET /v1/health`、`GET /v1/models`。
+冷启动约 45 秒（torch + CLIP）。内部接口：`POST /v1/classify`、`POST /v1/classify-base64`、`POST /v1/embed`、`GET /v1/health`、`GET /v1/models`。
+
+## AI 能力（前端真实调用，不是占位）
+
+前端只打 `/api/v1/*`；开发期由 `vite.config.ts` 把 `/api` 代理到 8100 的薄 BFF 层（同一进程加别名路由，不新增第二个服务）。
+
+| 前端入口 | 接口 | 说明 |
+|---|---|---|
+| 首页第 1 屏「把你的现场放进螺旋」→ 弹窗 | `POST /api/v1/ai/classify` | 真图识别：风格 13 类（留一法 0.706）+ 影调 9 条规则；题材 3 类内测不展示 |
+| 弹窗内「生成介绍」 | `POST /api/v1/ai/copywrite` | 分类标签 → 3 个标题 + 简介 + 标签；配 key 走千问/DeepSeek 兼容接口，未配 key 明确返回 `mode=rule` 模板兜底，不伪装模型输出 |
+| `/match` 撮合台 | `POST /api/v1/ai/agent/match` | 一句话需求 → 解析槽位 → 向量检索（44 张作品）→ 查档期 → 候选摄影师 + 理由；返回 `toolTrace` 可展开核对 |
+| 诊断 | `GET /api/v1/ai/health`、`GET /api/v1/ai/agent/status` | 模型版本、风格留一法准确率、索引条数、LLM 是否已配置 |
+
+实测（无头 Edge + CDP，非估算）：
+
+- 识别：单张 380–1140ms，例：`赛博 62% / 蓝调 21%` + `低调`；
+- 撮合：`西安，预算 800，下周末，想要港风街拍` → 3 位候选，同城优先，异地标 `crossCity`，库内无该城市时返回 `warnings`；
+- 作品向量索引 **44 条**（另有 6 张 unsplash 外链未纳入，已如实记录）；6 类城市分布：北京 15 / 南京 11 / 西安 11 / 上海 6。
+
+> 配置真实 LLM：设 `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY`（千问默认 `https://dashscope.aliyuncs.com/compatible-mode/v1` + `qwen-plus`，DeepSeek 换成 `https://api.deepseek.com/v1` + `deepseek-chat` 即可，代码不动）。密钥只给 Python 服务读，前端永远不碰。
 
 ## 模型指标的诚实口径
-
 - **风格（13 类 · 锚图原型匹配）**：留一法准确率 **0.706**，同批图零样本 **0.331**，随机基线 0.077。风格属于分布外概念，文本 prompt 覆盖不到，必须靠参考图——这是本项目最可讲的一个数字。
 - **题材（3 类 · 冻结 CLIP + 线性头）**：`val macro-F1 0.9881 / test 1.0000`，但**只有建筑 / 风景 / 美食三类**，且测试集存在同 query 近邻跨集，该数字是上限；对人像会误判，**不在界面暴露，标注「内测中」**。
 - **影调（9 条色彩规则）**：无监督、零标注，不报准确率，只讲可解释。
