@@ -25,7 +25,7 @@ MODEL_DIR = Path(os.environ.get("MODEL_DIR", "models"))
 INDEX_PATH = MODEL_DIR / "works.embed.npz"
 MANIFEST_PATH = MODEL_DIR / "works.manifest.json"
 
-CITY_NAMES = ["西安", "成都", "青岛", "北京", "上海", "杭州", "广州", "深圳"]
+CITY_NAMES = ["西安", "成都", "青岛", "北京", "上海", "南京", "杭州", "广州", "深圳", "重庆", "武汉"]
 
 # 中文风格词 → CLIP 英文提示词。表里没有的词不会假装认识，只按原样拼进去。
 STYLE_PROMPTS: dict[str, str] = {
@@ -223,10 +223,11 @@ def run_agent(text: str, top_n: int = 3, state: dict[str, Any] | None = None) ->
     for pid, entry in scores.items():
         items = entry["works"]
         profile = photographers.get(pid, {})
-        # 同城判定两种都算：摄影师主页城市，或他名下有作品拍在该城市
-        if slots["city"] and (
-            profile.get("city") == slots["city"] or any(w.get("city") == slots["city"] for w, _ in items)
-        ):
+        # 同城判定看这位摄影师名下的**全部**作品，而不是只有被检索出来的那两张：
+        # 否则一个在北京有 15 张作品的摄影师，可能因为前两张是别处拍的而被判成异地
+        all_works = by_photographer.get(pid, [])
+        city_hit = any(work.get("city") == slots["city"] for work in all_works) if slots["city"] else False
+        if slots["city"] and (profile.get("city") == slots["city"] or city_hit):
             entry["score"] += 0.05
             entry["cityMatch"] = True
         if any(w.get("canBook") for w, _ in items):
@@ -254,6 +255,9 @@ def run_agent(text: str, top_n: int = 3, state: dict[str, Any] | None = None) ->
             "responseTime": profile.get("responseTime", ""),
             "verified": bool(profile.get("verified")),
             "crossCity": bool(slots["city"]) and not entry.get("cityMatch"),
+            # matchedCity：这次实际命中用户城市的是谁（主页城市或名下作品城市）。
+            # 主页写西安、但作品多在北京的摄影师，对"北京"需求来说仍是同城命中。
+            "matchedCity": slots["city"] if entry.get("cityMatch") else "",
             "score": round(entry["score"], 4),
             "works": [
                 {

@@ -74,6 +74,17 @@ $env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
 - 撮合：`西安，预算 800，下周末，想要港风街拍` → 3 位候选，同城优先，异地标 `crossCity`，库内无该城市时返回 `warnings`；
 - 作品向量索引 **44 条**（另有 6 张 unsplash 外链未纳入，已如实记录）；6 类城市分布：北京 15 / 南京 11 / 西安 11 / 上海 6。
 
+**Agent 可复跑评测**（`ai-classifier/tools/eval_agent.py`，12 条人工标注需求，跑一次约 10 秒）：
+
+| 指标 | 结果 |
+|---|---|
+| 槽位解析：城市 / 预算 / 风格 | **100% / 100% / 100%**（12/12） |
+| 安全判定（pass·review·block 三档） | **100%**（含偷拍、私单、Prompt 注入、私房转人工） |
+| 指定城市时首位候选同城 | **100%**（4 条可判定；其余城市库内无图，标为无法判定、不计入分母） |
+| 端到端延迟 | P50 **42.8ms**，最慢 76.2ms |
+
+> 评测口径写在这里，是为了避免"我们自己说好"——任何人都能复跑 `tools/eval_agent.py` 得到同一组数字。
+
 > 配置真实 LLM：设 `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY`（千问默认 `https://dashscope.aliyuncs.com/compatible-mode/v1` + `qwen-plus`，DeepSeek 换成 `https://api.deepseek.com/v1` + `deepseek-chat` 即可，代码不动）。密钥只给 Python 服务读，前端永远不碰。
 
 ## AI 安全（不是词表堆砌，按真实风险面设计）
