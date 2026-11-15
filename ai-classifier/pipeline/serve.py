@@ -365,3 +365,26 @@ def models() -> Dict[str, Any]:
                 "thresholds": v["thresholds"],
                 "macroF1": v["metrics"].get("test", {}).get("macro_f1")}
             for k, v in _state["heads"].items()}
+
+
+# ---------------------------------------------------------------------------
+# BFF 别名层（2026-11-15）
+#
+# 方案 B：前端只认 /api/v1/*（这是它原本就写死的业务前缀），vite dev 把 /api
+# 代理到本进程 8100；生产环境反过来由网关转发。这样做的三个理由：
+#   1) 不新增第二个服务进程（Node BFF / Spring Boot 都要多一个东西要维护）；
+#   2) 前端 src/services/api.ts 的路径一个字都不用改，冻结的代码面最小；
+#   3) 答辩时能讲「业务接口前缀 + 模型服务解耦」，而不是「页面直连模型端口」。
+#
+# 这里用 add_api_route 复用同一批 handler，不复制逻辑 —— /v1/* 仍是内部契约
+# （tools/check_serve_model.py 等脚本照旧），/api/v1/ai/* 是给前端看的门面。
+# ---------------------------------------------------------------------------
+_BFF_ALIASES = [
+    ("/api/v1/ai/classify", classify, ["POST"]),
+    ("/api/v1/ai/classify-base64", classify_b64, ["POST"]),
+    ("/api/v1/ai/embed", embed, ["POST"]),
+    ("/api/v1/ai/health", health, ["GET"]),
+    ("/api/v1/ai/models", models, ["GET"]),
+]
+for _path, _endpoint, _methods in _BFF_ALIASES:
+    app.add_api_route(_path, _endpoint, methods=_methods, include_in_schema=False)
