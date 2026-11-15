@@ -1,0 +1,1616 @@
+{
+ "works": [
+  {
+   "id": "w-001",
+   "title": "灯笼落在肩上",
+   "imageUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=86",
+   "photographerId": "p-001",
+   "photographerName": "林初禾",
+   "location": "西安 · 小寨",
+   "city": "西安",
+   "styles": [
+    "古风",
+    "夜景",
+    "人像"
+   ],
+   "types": [],
+   "device": "",
+   "shootDate": "周六 18:00 后",
+   "canBook": true,
+   "matchReason": "命中：夜景、灯笼、古风；周六在小寨附近有档期",
+   "story": ""
+  },
+  {
+   "id": "w-002",
+   "title": "风从城墙边经过",
+   "imageUrl": "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=86",
+   "photographerId": "p-002",
+   "photographerName": "赵野",
+   "location": "西安 · 城墙南门",
+   "city": "西安",
+   "styles": [
+    "纪实",
+    "胶片",
+    "城市"
+   ],
+   "types": [],
+   "device": "",
+   "shootDate": "周六全天",
+   "canBook": true,
+   "matchReason": "命中：城墙、自然光；周六全天可到场",
+   "story": ""
+  },
+  {
+   "id": "w-003",
+   "title": "红墙边的半分钟",
+   "imageUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=86",
+   "photographerId": "p-003",
+   "photographerName": "周末",
+   "location": "西安 · 大雁塔",
+   "city": "西安",
+   "styles": [
+    "汉服",
+    "暖调",
+    "人像"
+   ],
+   "types": [],
+   "device": "",
+   "shootDate": "周日 09:00—13:00",
+   "canBook": true,
+   "matchReason": "命中：汉服、暖调；周日在大雁塔有空档",
+   "story": ""
+  },
+  {
+   "id": "w-004",
+   "title": "把风留在海边",
+   "imageUrl": "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=86",
+   "photographerId": "p-001",
+   "photographerName": "林初禾",
+   "location": "青岛 · 小麦岛",
+   "city": "青岛",
+   "styles": [
+    "日系",
+    "海边",
+    "轻旅拍"
+   ],
+   "types": [],
+   "device": "",
+   "shootDate": "下周五可约",
+   "canBook": true,
+   "matchReason": "命中：海边、轻旅拍；已打开跨城档期",
+   "story": ""
+  },
+  {
+   "id": "w-005",
+   "title": "一束光的肖像",
+   "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=86",
+   "photographerId": "p-002",
+   "photographerName": "赵野",
+   "location": "西安 · 曲江",
+   "city": "西安",
+   "styles": [
+    "肖像",
+    "自然光",
+    "低饱和"
+   ],
+   "types": [],
+   "device": "",
+   "shootDate": "周六 15:00 后",
+   "canBook": true,
+   "matchReason": "命中：自然光、肖像；周六下午可约",
+   "story": ""
+  },
+  {
+   "id": "w-006",
+   "title": "回到街角",
+   "imageUrl": "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=900&q=86",
+   "photographerId": "p-003",
+   "photographerName": "周末",
+   "location": "成都 · 玉林",
+   "city": "成都",
+   "styles": [
+    "街拍",
+    "复古",
+    "生活感"
+   ],
+   "types": [],
+   "device": "",
+   "shootDate": "本周日可约",
+   "canBook": false,
+   "matchReason": "命中：街拍、复古；当前档期已接近满档",
+   "story": ""
+  },
+  {
+   "id": "cyrus-027",
+   "title": "外滩夜色",
+   "imageUrl": "/src/assets/works/city-night.jpg",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海 · 外滩",
+   "city": "上海",
+   "styles": [
+    "夜景",
+    "城市",
+    "蓝调"
+   ],
+   "types": [
+    "城市",
+    "风景"
+   ],
+   "device": "待补充",
+   "shootDate": "作品集 · 城市夜景",
+   "canBook": false,
+   "matchReason": "夜色与城市轮廓",
+   "story": ""
+  },
+  {
+   "id": "cyrus-028",
+   "title": "雪原上的星轨",
+   "imageUrl": "/src/assets/works/star-trail.jpg",
+   "photographerId": "p-schedinger",
+   "photographerName": "薛定谔",
+   "location": "待补充",
+   "city": "待补充",
+   "styles": [
+    "星轨",
+    "雪景",
+    "长曝光"
+   ],
+   "types": [
+    "风景",
+    "户外"
+   ],
+   "device": "待补充",
+   "shootDate": "作品集 · 长曝光",
+   "canBook": false,
+   "matchReason": "长曝光下的星轨与雪地",
+   "story": ""
+  },
+  {
+   "id": "cyrus-001",
+   "title": "围栏边的短暂停留",
+   "imageUrl": "/src/assets/works/baea7746e45f670df9e27e388077b86d.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 校园球场",
+   "city": "北京",
+   "styles": [
+    "蓝调",
+    "纪实",
+    "低饱和"
+   ],
+   "types": [
+    "人像",
+    "街头"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 现场记录",
+   "canBook": false,
+   "matchReason": "蓝调纪实的人像记录",
+   "story": ""
+  },
+  {
+   "id": "cyrus-002",
+   "title": "秋色从树梢落下来",
+   "imageUrl": "/src/assets/works/09ff6d2517085a76ef74c580d8cca1b5.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 秋日公园",
+   "city": "北京",
+   "styles": [
+    "秋色",
+    "暖调",
+    "自然"
+   ],
+   "types": [
+    "风景",
+    "植物"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 秋日散步",
+   "canBook": false,
+   "matchReason": "暖色秋叶与自然光",
+   "story": ""
+  },
+  {
+   "id": "cyrus-003",
+   "title": "夜场散场前",
+   "imageUrl": "/src/assets/works/4c70462bcc53c43cd1775790a5007ff4.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 夜间活动",
+   "city": "北京",
+   "styles": [
+    "蓝调",
+    "夜景",
+    "纪实"
+   ],
+   "types": [
+    "人像",
+    "活动"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 夜间现场",
+   "canBook": false,
+   "matchReason": "蓝调夜景中的群像叙事",
+   "story": ""
+  },
+  {
+   "id": "cyrus-004",
+   "title": "在人群里看向镜头",
+   "imageUrl": "/src/assets/works/f1c5fff349cb2c7cd9457320c67191f5.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 活动现场",
+   "city": "北京",
+   "styles": [
+    "蓝调",
+    "纪实",
+    "群像"
+   ],
+   "types": [
+    "人像",
+    "团体"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 活动记录",
+   "canBook": false,
+   "matchReason": "自然抓拍与多人关系",
+   "story": ""
+  },
+  {
+   "id": "cyrus-005",
+   "title": "树影框住古建",
+   "imageUrl": "/src/assets/works/ce7a48ecb84d87ef131cf5f4502a2825.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 颐和园",
+   "city": "北京",
+   "styles": [
+    "古典",
+    "旅行",
+    "框景"
+   ],
+   "types": [
+    "建筑",
+    "风景"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 古建漫游",
+   "canBook": false,
+   "matchReason": "树影与古建的层次构图",
+   "story": ""
+  },
+  {
+   "id": "cyrus-006",
+   "title": "湖面尽头的长廊",
+   "imageUrl": "/src/assets/works/9e891167f97b19510a05cccde75dab8d.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 颐和园",
+   "city": "北京",
+   "styles": [
+    "旅行",
+    "古典",
+    "留白"
+   ],
+   "types": [
+    "建筑",
+    "风景"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 湖畔建筑",
+   "canBook": false,
+   "matchReason": "留白构图与皇家园林",
+   "story": ""
+  },
+  {
+   "id": "cyrus-007",
+   "title": "佛香阁与树梢",
+   "imageUrl": "/src/assets/works/f2a67ba078c0756eb13714a8fb1f1a10.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 颐和园",
+   "city": "北京",
+   "styles": [
+    "暗调",
+    "古典",
+    "建筑线条"
+   ],
+   "types": [
+    "建筑"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 建筑观察",
+   "canBook": false,
+   "matchReason": "暗部层次与建筑轮廓",
+   "story": ""
+  },
+  {
+   "id": "cyrus-008",
+   "title": "城墙与侧脸",
+   "imageUrl": "/src/assets/works/d72eaf69ab2b3a9ccdc3289d2e3976c1.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 景山",
+   "city": "北京",
+   "styles": [
+    "环境人像",
+    "旅行",
+    "留白"
+   ],
+   "types": [
+    "人像",
+    "建筑"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 旅行肖像",
+   "canBook": false,
+   "matchReason": "人物与城市风景的同框",
+   "story": ""
+  },
+  {
+   "id": "cyrus-009",
+   "title": "荷叶边的夏日肖像",
+   "imageUrl": "/src/assets/works/5461bea0fe26dad034e9fc7e11de7552.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 北海公园",
+   "city": "北京",
+   "styles": [
+    "日系",
+    "自然光",
+    "清新"
+   ],
+   "types": [
+    "人像",
+    "风景"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 夏日公园",
+   "canBook": false,
+   "matchReason": "自然光下的松弛人像",
+   "story": ""
+  },
+  {
+   "id": "cyrus-010",
+   "title": "门与远山",
+   "imageUrl": "/src/assets/works/6383584ebff23e0a46860c6483194e6a.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 故宫角楼",
+   "city": "北京",
+   "styles": [
+    "对称",
+    "旅行",
+    "纪实"
+   ],
+   "types": [
+    "建筑"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 城市旅行",
+   "canBook": false,
+   "matchReason": "对称门洞与远景层次",
+   "story": ""
+  },
+  {
+   "id": "cyrus-011",
+   "title": "藻井的旋转秩序",
+   "imageUrl": "/src/assets/works/3afd6b04671d1fb4319886fbb35bc183.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 古建筑内部",
+   "city": "北京",
+   "styles": [
+    "对称",
+    "色彩",
+    "细节"
+   ],
+   "types": [
+    "建筑",
+    "细节"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 建筑细节",
+   "canBook": false,
+   "matchReason": "向心构图与传统彩绘",
+   "story": ""
+  },
+  {
+   "id": "cyrus-012",
+   "title": "红墙前的旅人",
+   "imageUrl": "/src/assets/works/3c6015483e7d968f48e7d13588dc6487.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 故宫",
+   "city": "北京",
+   "styles": [
+    "旅行",
+    "人文",
+    "暖调"
+   ],
+   "types": [
+    "人像",
+    "建筑"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 旅行人像",
+   "canBook": false,
+   "matchReason": "人物与红墙的色彩呼应",
+   "story": ""
+  },
+  {
+   "id": "cyrus-013",
+   "title": "旗帜与城门",
+   "imageUrl": "/src/assets/works/ccb5977eb0044804f78505c99bccb2c9.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 天安门",
+   "city": "北京",
+   "styles": [
+    "纪实",
+    "城市",
+    "建筑"
+   ],
+   "types": [
+    "建筑",
+    "城市"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 城市地标",
+   "canBook": false,
+   "matchReason": "建筑细节与现场人群",
+   "story": ""
+  },
+  {
+   "id": "cyrus-014",
+   "title": "祈年殿的深色屋檐",
+   "imageUrl": "/src/assets/works/fac3cabe740ed07cdac991bfc0f357fc.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 天坛",
+   "city": "北京",
+   "styles": [
+    "暗调",
+    "几何",
+    "建筑"
+   ],
+   "types": [
+    "建筑"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 建筑线条",
+   "canBook": false,
+   "matchReason": "屋檐线条与深色质感",
+   "story": ""
+  },
+  {
+   "id": "cyrus-015",
+   "title": "檐角向上生长",
+   "imageUrl": "/src/assets/works/8c22ffe9a7036963e215c6f01f0c4c37.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "北京 · 古建园林",
+   "city": "北京",
+   "styles": [
+    "明亮",
+    "古风",
+    "仰拍"
+   ],
+   "types": [
+    "建筑"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 古风建筑",
+   "canBook": false,
+   "matchReason": "仰拍视角与高亮天空",
+   "story": ""
+  },
+  {
+   "id": "cyrus-016",
+   "title": "窗外山色入夜",
+   "imageUrl": "/src/assets/works/732bef5b6f98c69dec02d7fadebcd2a4.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 室内窗边",
+   "city": "西安",
+   "styles": [
+    "蓝调",
+    "氛围",
+    "室内"
+   ],
+   "types": [
+    "静物",
+    "风景"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 窗边日记",
+   "canBook": false,
+   "matchReason": "窗框分割出的蓝调风景",
+   "story": ""
+  },
+  {
+   "id": "cyrus-017",
+   "title": "一桌热气与晚餐",
+   "imageUrl": "/src/assets/works/7d3a27628dff43d7b262a6e87cd75d9e.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 餐厅",
+   "city": "西安",
+   "styles": [
+    "暖调",
+    "生活感",
+    "低光"
+   ],
+   "types": [
+    "美食",
+    "静物"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 生活碎片",
+   "canBook": false,
+   "matchReason": "低光环境中的食物与陪伴",
+   "story": ""
+  },
+  {
+   "id": "cyrus-018",
+   "title": "檐下看见一座塔",
+   "imageUrl": "/src/assets/works/564bb89b9fa369f229fc2bfb634c5bc6.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 古寺",
+   "city": "西安",
+   "styles": [
+    "古风",
+    "旅行",
+    "框景"
+   ],
+   "types": [
+    "建筑"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 古寺漫游",
+   "canBook": false,
+   "matchReason": "叶片框景与传统建筑",
+   "story": ""
+  },
+  {
+   "id": "cyrus-019",
+   "title": "彩色烟雾升起时",
+   "imageUrl": "/src/assets/works/8a02ee6142c6a75362ca71196decbc0f.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 校园活动",
+   "city": "西安",
+   "styles": [
+    "高饱和",
+    "庆典",
+    "现场"
+   ],
+   "types": [
+    "活动",
+    "风景"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 活动现场",
+   "canBook": false,
+   "matchReason": "彩色烟雾与大场面活动",
+   "story": ""
+  },
+  {
+   "id": "cyrus-020",
+   "title": "窗边的山与咖啡",
+   "imageUrl": "/src/assets/works/e0a0a9175f309bb4bf30424d965744f9.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 咖啡馆",
+   "city": "西安",
+   "styles": [
+    "暖调",
+    "生活感",
+    "静物"
+   ],
+   "types": [
+    "静物",
+    "风景"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 咖啡馆日常",
+   "canBook": false,
+   "matchReason": "室内桌面与远山景色",
+   "story": ""
+  },
+  {
+   "id": "cyrus-021",
+   "title": "夜车上的同行者",
+   "imageUrl": "/src/assets/works/73def5f9b02dfb6bd6365c5f4bfed42b.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 夜间车站",
+   "city": "西安",
+   "styles": [
+    "低光",
+    "纪实",
+    "夜景"
+   ],
+   "types": [
+    "人像",
+    "纪实"
+   ],
+   "device": "小米 15",
+   "shootDate": "作品集 · 夜行记录",
+   "canBook": false,
+   "matchReason": "低光里保留现场情绪",
+   "story": ""
+  },
+  {
+   "id": "cyrus-022",
+   "title": "华山石壁上的红线",
+   "imageUrl": "/src/assets/works/20cd7d65c810bd3c1049832daf043ef6.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "陕西 · 华山",
+   "city": "西安",
+   "styles": [
+    "旅行",
+    "山岳",
+    "自然"
+   ],
+   "types": [
+    "风景",
+    "户外"
+   ],
+   "device": "大疆 Osmo Pocket 3",
+   "shootDate": "作品集 · 山岳旅行",
+   "canBook": false,
+   "matchReason": "山岳尺度与行进中的人",
+   "story": ""
+  },
+  {
+   "id": "cyrus-023",
+   "title": "夜市里的红伞",
+   "imageUrl": "/src/assets/works/7477a4d06549c6111e68b189b755bf6d.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 夜市",
+   "city": "西安",
+   "styles": [
+    "夜景",
+    "蓝调",
+    "街拍"
+   ],
+   "types": [
+    "人像",
+    "街头"
+   ],
+   "device": "大疆 Osmo Pocket 3",
+   "shootDate": "作品集 · 夜市街拍",
+   "canBook": false,
+   "matchReason": "蓝调夜景与摊位灯光",
+   "story": ""
+  },
+  {
+   "id": "cyrus-024",
+   "title": "雪落古寺，蓝调人像",
+   "imageUrl": "/src/assets/works/69ad5fc404908ee05df3d8da54713b72.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 古寺",
+   "city": "西安",
+   "styles": [
+    "蓝调",
+    "氛围",
+    "纪实"
+   ],
+   "types": [
+    "人像",
+    "活动"
+   ],
+   "device": "大疆 Osmo Pocket 3",
+   "shootDate": "作品集 · 雪天现场",
+   "canBook": false,
+   "matchReason": "雪景、建筑与人物关系",
+   "story": ""
+  },
+  {
+   "id": "cyrus-025",
+   "title": "经幡的饱和色阶",
+   "imageUrl": "/src/assets/works/2d877e352b8d4982db812575933c8f59.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 文化景区",
+   "city": "西安",
+   "styles": [
+    "高饱和",
+    "旅行",
+    "文化"
+   ],
+   "types": [
+    "风景",
+    "文化"
+   ],
+   "device": "大疆 Osmo Pocket 3",
+   "shootDate": "作品集 · 色彩旅行",
+   "canBook": false,
+   "matchReason": "经幡色彩与斜线构图",
+   "story": ""
+  },
+  {
+   "id": "cyrus-026",
+   "title": "雪中的古寺旅人",
+   "imageUrl": "/src/assets/works/6741fc86c8912535c59258de05236f46.jpg",
+   "photographerId": "p-cyrus",
+   "photographerName": "Cyrus_chang",
+   "location": "西安 · 古寺景区",
+   "city": "西安",
+   "styles": [
+    "蓝调",
+    "环境人像",
+    "纪实"
+   ],
+   "types": [
+    "人像",
+    "旅行"
+   ],
+   "device": "大疆 Osmo Pocket 3",
+   "shootDate": "作品集 · 旅行人像",
+   "canBook": false,
+   "matchReason": "雪景环境中的人物肖像",
+   "story": ""
+  },
+  {
+   "id": "sp-01",
+   "title": "钢架塔尖",
+   "imageUrl": "/src/assets/spirals/s01.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "城市",
+    "建筑",
+    "蓝天"
+   ],
+   "types": [
+    "建筑",
+    "城市"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-02",
+   "title": "城墙、塔影与一湖春水",
+   "imageUrl": "/src/assets/spirals/s02.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "古建",
+    "旅行",
+    "绿调"
+   ],
+   "types": [
+    "古建",
+    "风景"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-03",
+   "title": "幕墙与飞过的航班",
+   "imageUrl": "/src/assets/spirals/s03.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "城市",
+    "建筑",
+    "蓝天"
+   ],
+   "types": [
+    "建筑",
+    "城市"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-04",
+   "title": "台阶上的人群",
+   "imageUrl": "/src/assets/spirals/s04.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "纪实",
+    "人文",
+    "旅行"
+   ],
+   "types": [
+    "纪实",
+    "人文"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-05",
+   "title": "古树与临水的亭",
+   "imageUrl": "/src/assets/spirals/s05.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "园林",
+    "古建",
+    "绿调"
+   ],
+   "types": [
+    "古建",
+    "风景"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-06",
+   "title": "街道尽头的超高层",
+   "imageUrl": "/src/assets/spirals/s06.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "夜景",
+    "城市",
+    "低光"
+   ],
+   "types": [
+    "城市",
+    "建筑"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-07",
+   "title": "黑白水面的鸭子",
+   "imageUrl": "/src/assets/spirals/s07.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "黑白",
+    "生态",
+    "静物"
+   ],
+   "types": [
+    "生态",
+    "纪实"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-08",
+   "title": "柳枝与两只水鸟",
+   "imageUrl": "/src/assets/spirals/s08.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "黑白",
+    "生态",
+    "留白"
+   ],
+   "types": [
+    "生态",
+    "风景"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-09",
+   "title": "球体与塔身的夜光",
+   "imageUrl": "/src/assets/spirals/s09.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "夜景",
+    "建筑",
+    "高饱和"
+   ],
+   "types": [
+    "建筑",
+    "城市"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-10",
+   "title": "荷塘里的两朵",
+   "imageUrl": "/src/assets/spirals/s10.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "花卉",
+    "自然",
+    "微距"
+   ],
+   "types": [
+    "花卉",
+    "自然"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-11",
+   "title": "白花与枝影",
+   "imageUrl": "/src/assets/spirals/s11.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "花卉",
+    "自然",
+    "浅景深"
+   ],
+   "types": [
+    "花卉",
+    "自然"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-12",
+   "title": "柱子框住的塔",
+   "imageUrl": "/src/assets/spirals/s12.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "古建",
+    "框景",
+    "旅行"
+   ],
+   "types": [
+    "古建",
+    "建筑"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-13",
+   "title": "江对岸的天际线",
+   "imageUrl": "/src/assets/spirals/s13.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "夜景",
+    "城市",
+    "蓝调"
+   ],
+   "types": [
+    "城市",
+    "风景"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-14",
+   "title": "抬头看见的树冠",
+   "imageUrl": "/src/assets/spirals/s14.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "自然",
+    "仰拍",
+    "绿调"
+   ],
+   "types": [
+    "风景",
+    "自然"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-15",
+   "title": "木台阶上的白鸽",
+   "imageUrl": "/src/assets/spirals/s15.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "生态",
+    "人文",
+    "浅景深"
+   ],
+   "types": [
+    "生态",
+    "纪实"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-16",
+   "title": "塔内的穹顶",
+   "imageUrl": "/src/assets/spirals/s16.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "古建",
+    "室内",
+    "高饱和"
+   ],
+   "types": [
+    "古建",
+    "建筑"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  }
+ ],
+ "spiralWorks": [
+  {
+   "id": "sp-01",
+   "title": "钢架塔尖",
+   "imageUrl": "/src/assets/spirals/s01.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "城市",
+    "建筑",
+    "蓝天"
+   ],
+   "types": [
+    "建筑",
+    "城市"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-02",
+   "title": "城墙、塔影与一湖春水",
+   "imageUrl": "/src/assets/spirals/s02.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "古建",
+    "旅行",
+    "绿调"
+   ],
+   "types": [
+    "古建",
+    "风景"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-03",
+   "title": "幕墙与飞过的航班",
+   "imageUrl": "/src/assets/spirals/s03.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "城市",
+    "建筑",
+    "蓝天"
+   ],
+   "types": [
+    "建筑",
+    "城市"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-04",
+   "title": "台阶上的人群",
+   "imageUrl": "/src/assets/spirals/s04.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "纪实",
+    "人文",
+    "旅行"
+   ],
+   "types": [
+    "纪实",
+    "人文"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-05",
+   "title": "古树与临水的亭",
+   "imageUrl": "/src/assets/spirals/s05.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "园林",
+    "古建",
+    "绿调"
+   ],
+   "types": [
+    "古建",
+    "风景"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-06",
+   "title": "街道尽头的超高层",
+   "imageUrl": "/src/assets/spirals/s06.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "夜景",
+    "城市",
+    "低光"
+   ],
+   "types": [
+    "城市",
+    "建筑"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-07",
+   "title": "黑白水面的鸭子",
+   "imageUrl": "/src/assets/spirals/s07.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "黑白",
+    "生态",
+    "静物"
+   ],
+   "types": [
+    "生态",
+    "纪实"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-08",
+   "title": "柳枝与两只水鸟",
+   "imageUrl": "/src/assets/spirals/s08.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "黑白",
+    "生态",
+    "留白"
+   ],
+   "types": [
+    "生态",
+    "风景"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-09",
+   "title": "球体与塔身的夜光",
+   "imageUrl": "/src/assets/spirals/s09.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "夜景",
+    "建筑",
+    "高饱和"
+   ],
+   "types": [
+    "建筑",
+    "城市"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-10",
+   "title": "荷塘里的两朵",
+   "imageUrl": "/src/assets/spirals/s10.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "花卉",
+    "自然",
+    "微距"
+   ],
+   "types": [
+    "花卉",
+    "自然"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-11",
+   "title": "白花与枝影",
+   "imageUrl": "/src/assets/spirals/s11.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "花卉",
+    "自然",
+    "浅景深"
+   ],
+   "types": [
+    "花卉",
+    "自然"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-12",
+   "title": "柱子框住的塔",
+   "imageUrl": "/src/assets/spirals/s12.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "古建",
+    "框景",
+    "旅行"
+   ],
+   "types": [
+    "古建",
+    "建筑"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-13",
+   "title": "江对岸的天际线",
+   "imageUrl": "/src/assets/spirals/s13.webp",
+   "photographerId": "p-qinihaoheguozhi",
+   "photographerName": "祺你喝好果汁",
+   "location": "上海",
+   "city": "上海",
+   "styles": [
+    "夜景",
+    "城市",
+    "蓝调"
+   ],
+   "types": [
+    "城市",
+    "风景"
+   ],
+   "device": "索尼 A7M5",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-14",
+   "title": "抬头看见的树冠",
+   "imageUrl": "/src/assets/spirals/s14.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "自然",
+    "仰拍",
+    "绿调"
+   ],
+   "types": [
+    "风景",
+    "自然"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-15",
+   "title": "木台阶上的白鸽",
+   "imageUrl": "/src/assets/spirals/s15.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "生态",
+    "人文",
+    "浅景深"
+   ],
+   "types": [
+    "生态",
+    "纪实"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "sp-16",
+   "title": "塔内的穹顶",
+   "imageUrl": "/src/assets/spirals/s16.webp",
+   "photographerId": "p-qingyun",
+   "photographerName": "青耘",
+   "location": "南京",
+   "city": "南京",
+   "styles": [
+    "古建",
+    "室内",
+    "高饱和"
+   ],
+   "types": [
+    "古建",
+    "建筑"
+   ],
+   "device": "尼康 D7100",
+   "shootDate": "作品集 · 2026",
+   "canBook": false,
+   "matchReason": "",
+   "story": "老师有点懒，这张照片少了点故事......."
+  }
+ ],
+ "photographers": [
+  {
+   "id": "p-001",
+   "name": "林初禾",
+   "city": "西安",
+   "bio": "喜欢把现场的风、灯和人的小动作都留在照片里。常在古城和海边拍摄。",
+   "tags": [
+    "古风人像",
+    "夜景",
+    "轻旅拍"
+   ],
+   "devices": [
+    "Sony α7C II",
+    "DJI Osmo Pocket 3"
+   ],
+   "responseTime": "通常 20 分钟内回复",
+   "nextSlot": "周六 18:00 后",
+   "verified": true
+  },
+  {
+   "id": "p-002",
+   "name": "赵野",
+   "city": "西安",
+   "bio": "纪实派，擅长在自然光和城市边缘找到不刻意的状态。",
+   "tags": [
+    "纪实",
+    "胶片",
+    "城市肖像"
+   ],
+   "devices": [
+    "Fujifilm X-T5"
+   ],
+   "responseTime": "通常 1 小时内回复",
+   "nextSlot": "周六全天",
+   "verified": true
+  },
+  {
+   "id": "p-003",
+   "name": "周末",
+   "city": "西安",
+   "bio": "从街角开始认识一座城，也记录每个人最松弛的那一面。",
+   "tags": [
+    "街拍",
+    "汉服",
+    "生活感"
+   ],
+   "devices": [
+    "Canon EOS R8"
+   ],
+   "responseTime": "通常当天回复",
+   "nextSlot": "周日 09:00—13:00",
+   "verified": true
+  },
+  {
+   "id": "p-cyrus",
+   "name": "Cyrus_chang",
+   "city": "西安",
+   "bio": "摄影爱好者，喜欢用手机和口袋云台记录旅行、建筑和身边的人。",
+   "tags": [
+    "旅行纪实",
+    "建筑",
+    "蓝调人像",
+    "活动记录"
+   ],
+   "devices": [
+    "小米 15",
+    "大疆 Osmo Pocket 3"
+   ],
+   "responseTime": "通常当天回复",
+   "nextSlot": "欢迎先看作品再交流",
+   "verified": false
+  },
+  {
+   "id": "p-schedinger",
+   "name": "薛定谔",
+   "city": "待补充",
+   "bio": "待补充",
+   "tags": [],
+   "devices": [],
+   "responseTime": "待补充",
+   "nextSlot": "待补充",
+   "verified": false
+  },
+  {
+   "id": "p-qinihaoheguozhi",
+   "name": "祺你喝好果汁",
+   "city": "上海",
+   "bio": "待补充",
+   "tags": [],
+   "devices": [
+    "索尼 A7M5"
+   ],
+   "responseTime": "待补充",
+   "nextSlot": "待补充",
+   "verified": false
+  },
+  {
+   "id": "p-qingyun",
+   "name": "青耘",
+   "city": "南京",
+   "bio": "待补充",
+   "tags": [],
+   "devices": [
+    "尼康 D7100"
+   ],
+   "responseTime": "待补充",
+   "nextSlot": "待补充",
+   "verified": false
+  }
+ ],
+ "counts": {
+  "works": 50,
+  "spiralWorks": 16,
+  "photographers": 7
+ }
+}

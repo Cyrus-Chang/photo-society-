@@ -1,0 +1,6 @@
+{
+ "count": 44,
+ "dim": 512,
+ "clipModel": "openai/clip-vit-base-patch32",
+ "source": "models/works.manifest.json"
+}

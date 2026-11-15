@@ -367,6 +367,35 @@ def models() -> Dict[str, Any]:
             for k, v in _state["heads"].items()}
 
 
+class AgentRequest(BaseModel):
+    text: str
+    topN: int = 3
+
+
+@app.post("/v1/agent/match")
+def agent_match(body: AgentRequest) -> Dict[str, Any]:
+    """一句话撮合：解析 → 向量检索 → 查档期 → 候选摄影师 + 理由 + 开场话术。"""
+    from .agent import run_agent
+
+    return run_agent(body.text, top_n=max(1, min(body.topN, 6)), state=_state)
+
+
+@app.get("/v1/agent/status")
+def agent_status() -> Dict[str, Any]:
+    from .agent import get_runtime
+
+    runtime = get_runtime()
+    index = runtime.get("index")
+    return {
+        "ok": not bool(runtime.get("error")),
+        "error": runtime.get("error", ""),
+        "indexedWorks": len(index) if index is not None else 0,
+        "llmConfigured": bool(os.environ.get("LLM_API_KEY")),
+        "llmModel": os.environ.get("LLM_MODEL", "qwen-plus"),
+        "llmBase": os.environ.get("LLM_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
+    }
+
+
 # ---------------------------------------------------------------------------
 # BFF 别名层（2026-11-15）
 #
@@ -385,6 +414,8 @@ _BFF_ALIASES = [
     ("/api/v1/ai/embed", embed, ["POST"]),
     ("/api/v1/ai/health", health, ["GET"]),
     ("/api/v1/ai/models", models, ["GET"]),
+    ("/api/v1/ai/agent/match", agent_match, ["POST"]),
+    ("/api/v1/ai/agent/status", agent_status, ["GET"]),
 ]
 for _path, _endpoint, _methods in _BFF_ALIASES:
     app.add_api_route(_path, _endpoint, methods=_methods, include_in_schema=False)
