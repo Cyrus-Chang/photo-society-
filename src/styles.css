@@ -2045,3 +2045,138 @@ html:has(.spiral-page) { scroll-snap-type: none; }
 .ai-result-error { margin: 0; color: #f3a184; font-size: 12px; line-height: 1.6; }
 .ai-result-note { color: rgba(237, 241, 244, .38); font-size: 10px; line-height: 1.6; }
 
+
+
+/* ===== 修正层 15（2026-11-15 19:xx）：AI 撮合页 /match + 首页入口 =====
+   与上面的 photo-ui v3 层不冲突：这里只新增 .match-page / .agent-* / .home-ai-link。
+   撮合结果全部来自后端真实工具调用（向量检索 + 查档期）；异地、缺城市都如实标注。 */
+.match-page {
+  min-height: 100svh;
+  padding: clamp(28px, 4.4vw, 64px) clamp(20px, 5vw, 72px) clamp(60px, 8vw, 110px);
+  background: radial-gradient(120% 70% at 82% 0%, rgba(233, 139, 107, .08), transparent 52%), #0a0c0f;
+  color: #eef2f5;
+}
+.match-head { display: grid; gap: 12px; max-width: 760px; margin-bottom: clamp(24px, 3.4vw, 40px); }
+.match-back {
+  display: inline-flex; align-items: center; gap: 7px; width: fit-content;
+  padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(238, 242, 245, .12);
+  color: #a9b5ba; font-size: 11px; text-decoration: none;
+}
+.match-back:hover { color: #fff; border-color: rgba(233, 139, 107, .5); }
+.match-eyebrow { color: #e98b6b; font: 9px/1 ui-monospace, Consolas, monospace; letter-spacing: .24em; }
+.match-head h1 {
+  margin: 0;
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  font-size: clamp(30px, 3.6vw, 52px);
+  line-height: 1.14; letter-spacing: -.03em;
+}
+.match-head h1 em { color: #e5a383; font-style: normal; }
+.match-head p { margin: 0; max-width: 640px; color: rgba(238, 242, 245, .56); font-size: 13px; line-height: 1.9; }
+
+.agent-match { display: grid; gap: 18px; max-width: 980px; }
+.agent-input {
+  display: grid; gap: 12px; padding: 18px;
+  border: 1px solid rgba(238, 242, 245, .13); border-radius: 16px; background: rgba(18, 24, 31, .72);
+}
+.agent-label { color: rgba(238, 242, 245, .44); font: 10px/1 ui-monospace, Consolas, monospace; letter-spacing: .18em; }
+.agent-textarea {
+  width: 100%; min-height: 76px; resize: vertical; padding: 12px 14px;
+  border-radius: 12px; border: 1px solid rgba(238, 242, 245, .16);
+  background: rgba(10, 12, 15, .72); color: #eef2f5; font-size: 14px; line-height: 1.7;
+}
+.agent-textarea:focus-visible { outline: 2px solid rgba(233, 139, 107, .6); outline-offset: 1px; border-color: rgba(233, 139, 107, .6); }
+.agent-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.agent-preset {
+  padding: 6px 11px; border-radius: 999px; border: 1px solid rgba(238, 242, 245, .16);
+  background: rgba(238, 242, 245, .04); color: rgba(238, 242, 245, .7); font-size: 11px; cursor: pointer;
+}
+.agent-preset:hover { border-color: rgba(233, 139, 107, .5); color: #ffd9c9; }
+.agent-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.agent-run {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 22px;
+  border: 0; border-radius: 999px;
+  background: linear-gradient(135deg, #f2a080, #e98b6b 58%, #d9734f);
+  color: #1b2225; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.agent-run:disabled { opacity: .7; cursor: wait; }
+.agent-run:focus-visible { outline: 2px solid rgba(233, 139, 107, .7); outline-offset: 2px; }
+.agent-meta { color: rgba(238, 242, 245, .4); font: 10px/1 ui-monospace, Consolas, monospace; }
+.agent-error { display: flex; align-items: center; gap: 8px; margin: 0; color: #f3a184; font-size: 12px; }
+
+.agent-result {
+  display: grid; gap: 14px; padding: 18px;
+  border: 1px solid rgba(238, 242, 245, .12); border-radius: 16px; background: rgba(13, 17, 22, .8);
+}
+.agent-slots { display: flex; flex-wrap: wrap; gap: 7px; }
+.agent-slot {
+  padding: 3px 9px; border-radius: 999px;
+  border: 1px solid rgba(233, 139, 107, .34); background: rgba(233, 139, 107, .1);
+  color: #ffd9c9; font-size: 11px;
+}
+.agent-reply { margin: 0; color: rgba(238, 242, 245, .82); font-size: 13px; line-height: 1.9; }
+.agent-warning { display: flex; align-items: flex-start; gap: 7px; margin: 0; color: #e0b25c; font-size: 12px; line-height: 1.7; }
+.agent-candidates { display: grid; gap: 16px; margin: 4px 0 0; padding: 0; list-style: none; }
+.agent-candidate {
+  display: grid; gap: 10px; padding: 14px; border-radius: 14px;
+  border: 1px solid rgba(238, 242, 245, .1); background: rgba(238, 242, 245, .025);
+}
+.agent-candidate-head { display: flex; align-items: center; gap: 12px; }
+.agent-rank { color: rgba(233, 139, 107, .9); font: 11px/1 ui-monospace, Consolas, monospace; letter-spacing: .1em; }
+.agent-candidate-id { display: grid; gap: 3px; flex: 1; min-width: 0; }
+.agent-candidate-id strong { font-size: 15px; }
+.agent-candidate-id small { color: rgba(238, 242, 245, .44); font-size: 11px; }
+.agent-flag { padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(224, 178, 92, .45); color: #e0b25c; font-size: 10px; }
+.agent-flag.is-local { border-color: rgba(143, 201, 168, .45); color: #8fc9a8; }
+.agent-works { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.agent-work { margin: 0; display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: start; }
+.agent-work img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(238, 242, 245, .14); }
+.agent-work figcaption { display: grid; gap: 4px; }
+.agent-work figcaption strong { font-size: 12px; }
+.agent-work figcaption span { color: rgba(238, 242, 245, .5); font-size: 10.5px; line-height: 1.6; }
+.agent-slot-line { margin: 0; color: rgba(238, 242, 245, .42); font-size: 11px; }
+.agent-trace-toggle {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(238, 242, 245, .14);
+  background: transparent; color: rgba(238, 242, 245, .6); font-size: 11px; cursor: pointer;
+}
+.agent-trace {
+  margin: 0; padding: 10px 12px; border-radius: 10px; background: rgba(0, 0, 0, .36);
+  color: #9db7c6; font: 11px/1.7 ui-monospace, Consolas, monospace; white-space: pre-wrap;
+}
+.home-ai-link { display: inline-flex; align-items: center; gap: 6px; color: rgba(240, 161, 132, .92); font-size: 12px; text-decoration: none; }
+.home-ai-link:hover { color: #ffd9c9; text-decoration: underline; }
+
+@media (max-width: 720px) {
+  .match-page { padding-left: 18px; padding-right: 18px; }
+  .agent-works { grid-template-columns: 1fr; }
+}
+
+
+/* ---- layer v3 修正 B（2026-11-15）：断行、单列与刻度长度 ---- */
+
+/* 标题：只在逗号后换行，禁止把「再决定约谁。」拆成半句 */
+.ps-discover .discover-v2-titlebar h2 em {
+  white-space: nowrap;
+}
+
+/* 顶部刻度：当前段只留 26px 珊瑚短线，其余回到 hairline */
+.ps-discover .discover-v2-progress i.is-current {
+  background: linear-gradient(90deg, var(--ps-accent) 0 26px, var(--ps-line) 26px 100%);
+}
+
+/* 小标签回到 ink-3（ink-4 只有 2.6:1） */
+.ps-kind-mark {
+  color: var(--ps-ink-3);
+}
+
+@media (max-width: 720px) {
+  /* 旧断点把 dl 拆成两栏，这里收回单栏 call sheet */
+  .discover-v2 .ps-call-sheet dl {
+    display: block;
+  }
+
+  /* 修正 A 的 ≤1180 三栏跨列不能带进单列：否则会撑出 3 个隐式列 */
+  .discover-v2-card.ps-frame.is-landscape {
+    grid-column: auto;
+  }
+}

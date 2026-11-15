@@ -12,6 +12,8 @@ const router = createRouter({
     { path: '/', name: 'home', component: () => import('./pages/HomePage.vue'), meta: { chrome: false } },
     { path: '/login', name: 'login', component: () => import('./pages/LoginPage.vue'), meta: { chrome: false } },
     { path: '/discover', name: 'discover', component: () => import('./pages/DiscoverPage.vue'), meta: { requiresAuth: true } },
+    // AI 撮合台（2026-11-15）：一句话需求 → 真调工具检索作品 + 查档期
+    { path: '/match', name: 'match', component: () => import('./pages/MatchPage.vue'), meta: { requiresAuth: true } },
     { path: '/market', name: 'market', component: () => import('./pages/MarketPage.vue'), meta: { requiresAuth: true } },
     // 作品详情公开：未登录可以看作品介绍，摄影师个人信息在页面里按登录态隐藏（2026-11-14 用户确认）
     { path: '/works/:id', name: 'work', component: () => import('./pages/WorkDetailPage.vue') },

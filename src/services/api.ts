@@ -91,3 +91,73 @@ export async function classifyImage(file: File): Promise<AiClassifyResult> {
     window.clearTimeout(timer)
   }
 }
+
+/* ===== 撮合 Agent（2026-11-15）=====
+   一句话需求 → 后端真调工具（向量检索 / 查档期）→ 候选摄影师 + 理由。
+   返回体带 toolTrace，前端可以原样展示「它到底调了什么」，不做黑箱。 */
+export interface AgentWorkHit {
+  id: string
+  title: string
+  imageUrl: string
+  city: string
+  styles: string[]
+  shootDate: string
+  score: number
+  reason: string
+}
+
+export interface AgentCandidate {
+  photographerId: string
+  name: string
+  city: string
+  tags: string[]
+  nextSlot: string
+  responseTime: string
+  verified: boolean
+  crossCity: boolean
+  score: number
+  works: AgentWorkHit[]
+}
+
+export interface AgentToolStep {
+  tool: string
+  args: Record<string, unknown>
+  result: unknown
+}
+
+export interface AgentResult {
+  ok: boolean
+  mode: string
+  slots: { city: string; budget: number; when: string; styles: string[]; raw: string }
+  query: string
+  candidates: AgentCandidate[]
+  reply: string
+  summary: string
+  warnings: string[]
+  toolTrace: AgentToolStep[]
+  latencyMs: number
+}
+
+const AGENT_TIMEOUT = 30000
+
+export async function matchPhotographers(text: string, topN = 3): Promise<AgentResult> {
+  const controller = new AbortController()
+  const timer = window.setTimeout(() => controller.abort(), AGENT_TIMEOUT)
+  try {
+    const response = await fetch(`${apiBase}/ai/agent/match`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, topN }),
+      signal: controller.signal
+    })
+    if (!response.ok) throw new Error(`撮合服务返回 ${response.status}`)
+    const payload = await response.json()
+    return (payload?.data ?? payload) as AgentResult
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') throw new Error('撮合超时，稍后再试')
+    if (error instanceof TypeError) throw new Error('连不上撮合服务：确认 8100 已启动，且 dev 代理生效')
+    throw error instanceof Error ? error : new Error('撮合失败')
+  } finally {
+    window.clearTimeout(timer)
+  }
+}

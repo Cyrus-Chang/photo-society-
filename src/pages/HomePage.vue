@@ -631,6 +631,7 @@ onMounted(async () => {
             {{ isAuthed ? '继续浏览拍社' : '进入拍社' }}
             <MoveUpRight :size="18" />
           </button>
+          <RouterLink class="home-ai-link" to="/match">说不清该找谁？让 AI 帮你撮合 <ArrowUpRight :size="15" /></RouterLink>
           <small>约拍 · 集市 · 圈子 · 我的约拍 · 摄影师工作台</small>
         </div>
       </div>
