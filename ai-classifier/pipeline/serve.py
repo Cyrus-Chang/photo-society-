@@ -367,6 +367,20 @@ def models() -> Dict[str, Any]:
             for k, v in _state["heads"].items()}
 
 
+class CopyRequest(BaseModel):
+    title: str = ""
+    styles: List[str] = []
+    tones: List[str] = []
+
+
+@app.post("/v1/copywrite")
+def copywrite(body: CopyRequest) -> Dict[str, Any]:
+    """根据分类标签生成作品标题/简介/标签。没配 LLM 时返回 mode=rule 的模板兜底。"""
+    from .copywriter import generate_copy
+
+    return generate_copy({"title": body.title, "styles": body.styles, "tones": body.tones})
+
+
 class AgentRequest(BaseModel):
     text: str
     topN: int = 3
@@ -416,6 +430,7 @@ _BFF_ALIASES = [
     ("/api/v1/ai/models", models, ["GET"]),
     ("/api/v1/ai/agent/match", agent_match, ["POST"]),
     ("/api/v1/ai/agent/status", agent_status, ["GET"]),
+    ("/api/v1/ai/copywrite", copywrite, ["POST"]),
 ]
 for _path, _endpoint, _methods in _BFF_ALIASES:
     app.add_api_route(_path, _endpoint, methods=_methods, include_in_schema=False)

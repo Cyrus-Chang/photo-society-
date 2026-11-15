@@ -139,7 +139,6 @@ export interface AgentResult {
 }
 
 const AGENT_TIMEOUT = 30000
-
 export async function matchPhotographers(text: string, topN = 3): Promise<AgentResult> {
   const controller = new AbortController()
   const timer = window.setTimeout(() => controller.abort(), AGENT_TIMEOUT)
@@ -157,6 +156,39 @@ export async function matchPhotographers(text: string, topN = 3): Promise<AgentR
     if (error instanceof DOMException && error.name === 'AbortError') throw new Error('撮合超时，稍后再试')
     if (error instanceof TypeError) throw new Error('连不上撮合服务：确认 8100 已启动，且 dev 代理生效')
     throw error instanceof Error ? error : new Error('撮合失败')
+  } finally {
+    window.clearTimeout(timer)
+  }
+}
+
+/* ===== 作品文案生成（2026-11-15）=====
+   把分类器输出的结构化标签喂给 LLM，产出 3 个标题备选 + 一句话简介。
+   没配 LLM key 时后端返回 mode='rule' 的模板兜底，界面必须标明来源（不伪装成模型）。 */
+export interface CopyResult {
+  mode: 'llm' | 'rule'
+  titles: string[]
+  intro: string
+  tags: string[]
+  note: string
+}
+
+export async function writeCopy(input: { title?: string; styles?: string[]; tones?: string[] }): Promise<CopyResult> {
+  const controller = new AbortController()
+  const timer = window.setTimeout(() => controller.abort(), AGENT_TIMEOUT)
+  try {
+    const response = await fetch(`${apiBase}/ai/copywrite`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: input.title ?? '', styles: input.styles ?? [], tones: input.tones ?? [] }),
+      signal: controller.signal
+    })
+    if (!response.ok) throw new Error(`文案服务返回 ${response.status}`)
+    const payload = await response.json()
+    return (payload?.data ?? payload) as CopyResult
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') throw new Error('文案生成超时')
+    if (error instanceof TypeError) throw new Error('连不上文案服务：确认 8100 已启动，且 dev 代理生效')
+    throw error instanceof Error ? error : new Error('文案生成失败')
   } finally {
     window.clearTimeout(timer)
   }
