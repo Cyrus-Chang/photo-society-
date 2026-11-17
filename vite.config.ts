@@ -12,7 +12,9 @@ export default defineConfig(({ mode }) => {
     plugins: [vue()],
     server: {
       port: 5173,
-      host: '0.0.0.0',
+      // 默认只听回环，避免同网段的人直接打开开发服务器（Vite dev 可读源码）。
+      // 需要用手机/局域网预览时临时运行：npm run dev -- --host
+      host: '127.0.0.1',
       proxy: {
         '/api': {
           target: aiTarget,
