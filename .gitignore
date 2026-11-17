@@ -16,7 +16,9 @@ __pycache__/
 *.pyc
 
 # ===== AI 训练数据与外部数据集（许可不齐，不入库）=====
-ai-classifier/data/
+ai-classifier/data/*
+!ai-classifier/data/
+!ai-classifier/data/retrieval_labels.json
 ai-classifier/external/
 ai-classifier/cache/
 ai-classifier/reports/
@@ -32,9 +34,30 @@ ai-classifier/reports/
 *.tmp
 .mis.txt
 
+# ===== 并行会话的临时脚手架（含 Chrome profile，8k+ 文件，绝不入库）=====
+.staging/
+
+# ===== AI 服务运行日志（每次请求都在长，不入库）=====
+ai-classifier/logs/
+
 # ===== 系统与编辑器 =====
 .DS_Store
 Thumbs.db
 desktop.ini
 .idea/
 .vscode/
+
+# ===== pip 在仓库根目录留下的临时解包目录（2026-11-17 实测 51 个 / 87.8MB）=====
+pip-unpack-*/
+pip-install-*/
+pip-build-tracker-*/
+pip-ephem-wheel-cache-*/
+pip-metadata-*/
+pip-target-*/
+
+# ===== 训练用独立 venv 与模型权重（可重建，体积 3GB 起，绝不入库）=====
+# 注意：不要写成 models/，那会连 ai-classifier/models/ 一起忽略掉（那里是要入库的索引产物）
+.staging/.venv-train/
+*.safetensors
+*.gguf
+
