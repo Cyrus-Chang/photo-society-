@@ -6,9 +6,12 @@ import {
 } from 'lucide-vue-next'
 import { localWorkUrl } from '../utils/media'
 import { classifyImage } from '../services/api'
-import { writeCopy, type CopyResult } from '../services/api'
-import { styleLabel, toneLabel, type AiClassifyResult } from '../utils/aiLabels'
-import { spiralWorks, works } from '../data/mock'
+import { writeCopyStream, type CopyResult } from '../services/api'
+import {
+  AI_LABEL_DICTIONARY,
+  styleLabel, subjectLabel, toneLabel, type AiClassifyResult, type AiLabelDefinition
+} from '../utils/aiLabels'
+import { spiralWallWorks, works } from '../data/mock'
 import heroBackground from '../assets/hero-stars.webp'
 import bundBackground from '../assets/works/bund-night.jpg'
 import wallBackground from '../assets/works/city-wall.jpg'
@@ -84,13 +87,49 @@ const reviewState = ref<'idle' | 'checking' | 'approved' | 'submitted'>('idle')
 /* AI 识别结果：风格走 13 类锚图原型、影调走 9 条色彩规则；题材 3 类内测中，不进界面 */
 const aiResult = ref<AiClassifyResult | null>(null)
 const aiError = ref('')
-const aiStyleTags = computed(() => (aiResult.value?.style ?? []).slice(0, 2).map((tag) => ({ code: tag.code, label: styleLabel(tag.code), percent: tag.confidence ? Math.round(tag.confidence * 100) : 0 })))
-const aiToneTags = computed(() => (aiResult.value?.tone ?? []).map((tag) => ({ code: tag.code, label: toneLabel(tag.code) })))
+type ManualTagKind = 'style' | 'tone' | 'subject'
+type ManualTag = { kind: ManualTagKind; code: string; label: string }
+const removedAiTags = ref<Record<ManualTagKind, string[]>>({ style: [], tone: [], subject: [] })
+const manualTags = ref<ManualTag[]>([])
+const manualTagKind = ref<ManualTagKind>('style')
+const manualTagInput = ref('')
+const aiNeedsReview = computed(() => aiResult.value?.needsReview === true)
+const aiStyleTags = computed(() => (aiResult.value?.style ?? []).slice(0, 2).map((tag) => ({
+  code: tag.code,
+  label: styleLabel(tag.code),
+  percent: aiNeedsReview.value ? 0 : (tag.confidence ? Math.round(tag.confidence * 100) : 0),
+  removed: removedAiTags.value.style.includes(tag.code)
+})))
+const aiToneTags = computed(() => (aiResult.value?.tone ?? []).map((tag) => ({
+  code: tag.code,
+  label: toneLabel(tag.code),
+  removed: removedAiTags.value.tone.includes(tag.code)
+})))
+const aiSubjectTags = computed(() => (aiResult.value?.subject ?? []).map((tag) => ({
+  code: tag.code,
+  label: subjectLabel(tag.code),
+  removed: removedAiTags.value.subject.includes(tag.code)
+})))
+const aiConfidenceSource = computed(() => {
+  const method = aiResult.value?.confidenceCalibration?.style?.method
+  if (method) return method
+  const source = aiResult.value?.confidenceSource
+  if (typeof source === 'string') return source
+  return source?.style ?? ''
+})
+const aiSubjectGateNote = computed(() => {
+  const gate = aiResult.value?.subjectGate
+  if (!gate || aiSubjectTags.value.length || gate.passed) return ''
+  if (gate.reason === 'person_evidence_or_confidence_below_gate') return '题材未展示：检测到人像证据或题材置信度不足。'
+  if (gate.reason === 'person_evidence_unavailable') return '题材未展示：人像证据不可用，建议人工确认。'
+  return '题材未展示：未通过安全门控，建议人工确认。'
+})
 const aiLatency = computed(() => (aiResult.value?.latencyMs ? `${Math.round(aiResult.value.latencyMs)}ms` : ''))
 /* AI 文案：3 个标题备选 + 一句话简介；mode=rule 时必须显示「模板兜底」而不是假装模型生成 */
 const copyResult = ref<CopyResult | null>(null)
 const copyLoading = ref(false)
 const copyError = ref('')
+const copyStreamText = ref('')
 let wheelTimer: number | undefined
 let reviewTimer: number | undefined
 let detailSwapTimer: number | undefined
@@ -129,8 +168,9 @@ const scrollToWorks = () => document.querySelector('#intro')?.scrollIntoView({ b
 const activeItem = computed(() => galleryItems[activeIndex.value])
 const progress = computed(() => `${String(activeIndex.value + 1).padStart(2, '0')} / ${String(galleryItems.length).padStart(2, '0')}`)
 
-/* 螺旋照片墙（2026-11-15）：16 张用户实拍，打散混排，数据来自 mock.spiralWorks */
-const spiralItems: SpiralItem[] = spiralWorks.map((work) => ({
+/* 螺旋照片墙（2026-11-15）：16 张用户实拍，打散混排，数据来自 mock.spiralWorks
+   2026-11-16：用户 Q5 拍板「进」，改用 mock.spiralWallWorks（原 28 张 + 薛定谔三张 = 31） */
+const spiralItems: SpiralItem[] = spiralWallWorks.map((work) => ({
   id: work.id,
   image: work.imageUrl,
   title: work.title,
@@ -158,7 +198,7 @@ function pinToWall() {
 }
 
 function onSpiralSelect(item: SpiralItem) {
-  selectedSpiral.value = spiralWorks.find((work) => work.id === item.id) ?? null
+  selectedSpiral.value = spiralWallWorks.find((work) => work.id === item.id) ?? null
   hasSelected.value = Boolean(selectedSpiral.value)
   pinToWall()
 }
@@ -267,11 +307,12 @@ function startMatching() {
 }
 
 function enterSociety() {
+  // 2026-11-16 用户：进入拍社不该顺手把筛选窗弹出来，先落到约拍页，要筛再点按钮。
   if (isAuthed.value) {
-    router.push({ name: 'discover', query: { filter: '1' } })
+    router.push({ name: 'discover' })
     return
   }
-  router.push({ name: 'login', query: { redirect: '/discover?filter=1' } })
+  router.push({ name: 'login', query: { redirect: '/discover' } })
 }
 function closeDetail() { hasSelected.value = false }
 
@@ -401,6 +442,12 @@ function openUpload() {
   reviewState.value = 'idle'
 }
 
+function resetAiEdits() {
+  removedAiTags.value = { style: [], tone: [], subject: [] }
+  manualTags.value = []
+  manualTagInput.value = ''
+}
+
 function closeUpload() {
   if (reviewState.value === 'checking') return
   showUpload.value = false
@@ -412,8 +459,10 @@ function closeUpload() {
   reviewState.value = 'idle'
   aiResult.value = null
   aiError.value = ''
+  resetAiEdits()
   copyResult.value = null
   copyError.value = ''
+  copyStreamText.value = ''
 }
 
 function chooseFile() { uploadInput.value?.click() }
@@ -428,8 +477,52 @@ function handleFile(event: Event) {
   reviewState.value = 'idle'
   aiResult.value = null
   aiError.value = ''
+  resetAiEdits()
   copyResult.value = null
   copyError.value = ''
+  copyStreamText.value = ''
+}
+
+function toggleAiTag(kind: ManualTagKind, code: string) {
+  const list = removedAiTags.value[kind]
+  const index = list.indexOf(code)
+  if (index >= 0) list.splice(index, 1)
+  else list.push(code)
+}
+
+function resolveKnownTag(kind: ManualTagKind, raw: string) {
+  const value = raw.trim().toLowerCase()
+  const group = kind === 'style' ? 'STYLE' : kind === 'tone' ? 'TONE' : 'SUBJECT'
+  const match = (Object.entries(AI_LABEL_DICTIONARY[group]) as Array<[string, AiLabelDefinition]>).find(([code, item]) => (
+    code.toLowerCase() === value
+    || item.name.toLowerCase() === value
+    || item.aliases.some((alias) => alias.toLowerCase() === value)
+  ))
+  return match ? { code: match[0], label: match[1].name } : null
+}
+
+function addManualTag() {
+  const raw = manualTagInput.value.trim()
+  if (!raw) return
+  const known = resolveKnownTag(manualTagKind.value, raw)
+  const label = known?.label ?? raw
+  const code = known?.code ?? `MANUAL_${raw.toUpperCase().replace(/[^A-Z0-9\u4e00-\u9fff]+/g, '_').slice(0, 32)}`
+  if (!manualTags.value.some((tag) => tag.kind === manualTagKind.value && tag.code === code)) {
+    manualTags.value.push({ kind: manualTagKind.value, code, label })
+  }
+  manualTagInput.value = ''
+}
+
+function removeManualTag(tag: ManualTag) {
+  manualTags.value = manualTags.value.filter((item) => !(item.kind === tag.kind && item.code === tag.code))
+}
+
+function effectiveTagCodes(kind: ManualTagKind) {
+  const aiCodes = (aiResult.value?.[kind] ?? [])
+    .map((tag) => tag.code)
+    .filter((code) => !removedAiTags.value[kind].includes(code))
+  const manualCodes = manualTags.value.filter((tag) => tag.kind === kind).map((tag) => tag.code)
+  return [...aiCodes, ...manualCodes]
 }
 
 async function generateCopy() {
@@ -437,12 +530,13 @@ async function generateCopy() {
   copyLoading.value = true
   copyError.value = ''
   copyResult.value = null
+  copyStreamText.value = ''
   try {
-    const result = await writeCopy({
+    const result = await writeCopyStream({
       title: uploadTitle.value,
-      styles: (aiResult.value?.style ?? []).map((tag) => tag.code),
-      tones: (aiResult.value?.tone ?? []).map((tag) => tag.code)
-    })
+      styles: effectiveTagCodes('style'),
+      tones: effectiveTagCodes('tone')
+    }, (delta) => { copyStreamText.value += delta }, () => { copyStreamText.value = '' })
     copyResult.value = result
     if (!uploadTitle.value && result.titles[0]) uploadTitle.value = result.titles[0]
     uploadDescription.value = result.intro
@@ -458,6 +552,7 @@ function runReview() {
   reviewState.value = 'checking'
   aiResult.value = null
   aiError.value = ''
+  resetAiEdits()
   void classifyImage(uploadFile.value)
     .then((result) => {
       aiResult.value = result
@@ -535,11 +630,20 @@ onMounted(async () => {
       </div>
       <div class="spiral-heading">
         <div class="spiral-kicker"><span class="kicker-line" />FIELD JOURNAL <b>2026</b></div>
-        <p class="spiral-overline">光落在谁身上，谁就成为现场。</p>
+        <p class="spiral-overline">让AI读懂你的审美。</p>
         <h1>让每一双爱美的眼睛<br /><em>都能找到</em>独属于<span class="pupil-highlight">瞳孔</span>的风景线。</h1>
-        <p>把时间、地点和想要的感觉交给我们。先看作品，再决定要不要见面。</p>
-        <div class="spiral-heading-meta"><i />28 位摄影师正在附近拍摄</div>
-        <button class="stage-upload" type="button" @click="openUpload"><Plus :size="15" />把你的现场放进螺旋</button>
+        <p>把时空和感觉说给AI，将技术与保障托付给平台，赠予一知己。</p>
+        <div class="spiral-heading-meta"><i />6 位摄影师正在附近拍摄</div>
+        <!-- 2026-11-16 用户：登录后回到首页，第一页下方要有「进入拍社」 -->
+        <RouterLink v-if="isAuthed" class="home-enter spiral-enter" to="/discover">
+          进入拍社
+          <MoveUpRight :size="17" aria-hidden="true" />
+        </RouterLink>
+        <!-- 2026-11-16 用户：已登录回首页只留「进入拍社」，不再显示滑动提示（未登录才显示） -->
+        <button v-if="!isAuthed" class="spiral-scroll-hint" type="button" @click="goScreen(1)">
+          <span>向下滑动进入拍社</span>
+          <ChevronDown :size="15" />
+        </button>
       </div>
 
       <div class="spiral-stage-wrap">
@@ -566,7 +670,10 @@ onMounted(async () => {
         <div class="detail-author"><img :src="selectedSpiral.photographerAvatar" :alt="selectedSpiral.photographerName" /><div><span>作者</span><strong>{{ selectedSpiral.photographerName }}</strong><small>{{ selectedSpiral.city }}</small></div></div>
         <div class="detail-copy"><p class="detail-place">{{ selectedSpiral.location }}</p><h2>{{ selectedSpiral.title }}</h2><p v-if="selectedSpiral.story">{{ selectedSpiral.story }}</p></div>
         <dl class="detail-facts"><div><dt>PHOTO STYLE</dt><dd><span v-for="tag in selectedSpiral.styles" :key="tag">{{ tag }}</span></dd></div><div><dt>CAPTURED WITH</dt><dd>{{ selectedSpiral.device ?? '待补充' }}</dd></div></dl>
-        <div class="detail-note"><Info :size="14" /><span>照片由作者保留署名与设备信息，描述可以由你决定。</span></div>
+        <div class="detail-note"><Info :size="14" /><span>照片展示作者署名与设备信息，详细介绍非强制填写项。</span></div>
+        <div class="detail-upload-row">
+          <button class="detail-upload" type="button" @click="openUpload"><Plus :size="14" />把你的回忆放进照片墙</button>
+        </div>
       </aside>
       </Transition>
       <button class="screen-cue" type="button" aria-label="向下浏览下一屏" @click="goScreen(1)">
@@ -580,13 +687,13 @@ onMounted(async () => {
       <div class="hp-veil" aria-hidden="true" />
       <div class="hp-inner">
         <header class="home-section-head">
-          <div><span class="home-eyebrow">01 / WHAT WE DO</span><h2>不是摄影社区，<br /><em>是接单撮合。</em></h2></div>
-          <p>你把「想拍什么、在哪天、什么预算」说清楚，摄影师带着档期和作品来回应。首页不做内容信息流。</p>
+          <div><span class="home-eyebrow">01 / WHAT WE DO</span><h2>是摄影社区，<br /><em>也是摄影伙伴。</em></h2></div>
+          <p>只需要将「想拍什么、在哪天、什么预算」说清楚，平台自动为你推荐合口味的摄影师/摄影爱好者/摄影搭子。</p>
         </header>
         <div class="home-intro-grid">
-          <article><span>01</span><h3>找一位摄影师</h3><p>按城市、日期、预算和风格先筛一遍，看真实作品，再决定见谁。</p></article>
-          <article><span>02</span><h3>摄影师接单</h3><p>打开档期、上传作品，让正在找人的那一位先看到你。</p></article>
-          <article><span>03</span><h3>找拍摄搭档</h3><p>同一场主题、同一个地点，找到愿意一起出现、互相掌机的人。</p></article>
+          <article><span>01</span><h3>找一位摄影师</h3><p>按城市、日期、预算、风格以及你的性格MBTI，为你推荐懂你的摄影人</p></article>
+          <article><span>02</span><h3>摄影师接单</h3><p>打开档期开关、上传作品与个人信息，让need you的人看到你。</p></article>
+          <article><span>03</span><h3>找拍摄搭档</h3><p>同一场主题、同一个地点，互相组队，互相掌机，让coser找到team，为相机找到伙伴。</p></article>
           <article><span>04</span><h3>发布一条需求</h3><p>把地点、时间和预算写清楚，让有空的人直接来回应。</p></article>
         </div>
       </div>
@@ -601,25 +708,25 @@ onMounted(async () => {
       <div class="hp-veil" aria-hidden="true" />
       <div class="hp-inner">
         <header class="home-section-head">
-          <div><span class="home-eyebrow">02 / WHAT WE DO BETTER</span><h2>把「找对人」<br /><em>交给模型。</em></h2></div>
-          <p>三件事指向同一个结果：你不用再翻几十张跟你无关的照片。</p>
+          <div><span class="home-eyebrow">02 / WHAT WE DO BETTER</span><h2>把「审美与遇见」<br /><em>交给AI。</em></h2></div>
+          <p>通过上传你喜欢的摄影作品，让AI读懂你的审美。</p>
         </header>
 
         <div class="hp-highlights">
           <article>
             <span class="hp-hl-index">A</span>
             <h3>AI 帮你选摄影师</h3>
-            <p>说清想拍什么，模型从作品的光线、风格、机位和档期里挑出真正接近的那几位，并把「为什么推荐」写在同一行——是地点对、预算对，还是风格最近。</p>
+            <p>说清想拍什么，AI从作品的光线、风格、机位和档期里挑出最适合你的摄影佬。</p>
           </article>
           <article>
             <span class="hp-hl-index">B</span>
             <h3>AI 帮你找搭子</h3>
-            <p>注册时填一次 MBTI，系统按性格相容度 × 所在城市 × 拍摄题材排序。互补组合优先（比如 INFP 配 ENFJ、INTJ 配 ENTP），同城优先，题材重合再加分。</p>
+            <p>注册时填一次 MBTI、星座以及自我介绍，系统按性格相容度 × 所在城市 × 拍摄题材排序。互补组合优先（比如 INFP 配 ENFJ、INTJ 配 ENTP，火象与风象等）审美至上，题材重合再加分。</p>
           </article>
           <article>
             <span class="hp-hl-index">C</span>
             <h3>作品自带风格标签</h3>
-            <p>每张作品入库时自动打标签，你按标签找人，不用逐张翻。标签会随你的拍摄意图加权，越用越准。</p>
+            <p>每张作品入库时自动设置标签，按标签找人（有图有真相，有标签真的香）标签会随你的拍摄意图加权，越用越准。</p>
           </article>
         </div>
 
@@ -639,7 +746,7 @@ onMounted(async () => {
             <h3>地点、日期、预算、风格，先说清楚。</h3>
           </div>
           <p>我们只根据你给的条件和作品本身的风格做匹配，不会替你编造摄影师的经历或故事。</p>
-          <div class="home-match-note"><Sparkles :size="15" /><span>匹配理由会写清楚：是地点对、预算对、风格近，还是时间刚好。</span></div>
+          <div class="home-match-note"><Sparkles :size="15" /><span>匹配理由（地点对、预算对、风格近、时间刚好、性格适合）可筛选。</span></div>
         </div>
       </div>
       <button class="screen-cue" type="button" aria-label="下一屏：开始匹配" @click="goScreen(3)">
@@ -659,7 +766,7 @@ onMounted(async () => {
             <MoveUpRight :size="18" />
           </button>
           <RouterLink class="home-ai-link" to="/match">说不清该找谁？让 AI 帮你撮合 <ArrowUpRight :size="15" /></RouterLink>
-          <small>约拍 · 集市 · 圈子 · 我的约拍 · 摄影师工作台</small>
+          <small>约拍 · 接拍 · 圈子 · 我的约拍 · 摄影师工作台</small>
         </div>
       </div>
       <button class="screen-cue is-up" type="button" aria-label="回到第一屏" @click="goScreen(0)">
@@ -669,6 +776,53 @@ onMounted(async () => {
 
     <footer class="footer-v2 spiral-followup"><div class="footer-v2-brand"><span>拍</span><div><strong>{{ brand.cn }}</strong><small>{{ brand.en }}</small></div></div><p>让每一次想拍照，都遇见刚好能到场的人。</p><span>© 2026 拍社影像</span></footer>
 
-    <Transition name="modal-fade"><div v-if="showUpload" class="upload-backdrop" @click.self="closeUpload"><section class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title"><button class="modal-close" type="button" aria-label="关闭" @click="closeUpload"><X :size="19" /></button><div class="upload-modal-head"><span class="spiral-kicker"><span class="kicker-line" />ADD TO THE FIELD</span><h2 id="upload-title">把你的现场放进螺旋</h2><p>只需要一张照片。署名、标签和机型会被完整保留，其他文字交给你或 AI。</p></div><div class="upload-modal-body"><div class="upload-preview" :class="{ 'has-image': uploadPreview }" @click="chooseFile"><img v-if="uploadPreview" :src="uploadPreview" alt="待上传照片预览" /><div v-else><Upload :size="25" /><strong>拖入或选择一张照片</strong><small>JPG / PNG · 建议长边 1600px 以上</small></div><input ref="uploadInput" type="file" accept="image/jpeg,image/png,image/webp" hidden @change="handleFile" /></div><div class="upload-fields"><label><span>作品标题</span><input v-model="uploadTitle" placeholder="例如：雨停之后的街角" /></label><label><span>这张照片的介绍</span><textarea v-model="uploadDescription" rows="5" placeholder="写下你想留下的那句话，或交给 AI 帮你整理。" /></label><div class="ai-copy-row"><button class="ai-toggle" :class="{ active: useAiCopy }" type="button" @click="useAiCopy = !useAiCopy"><span class="toggle-dot" /><span>允许 AI 美化文字</span></button><button class="ai-generate" type="button" :disabled="!useAiCopy || copyLoading" @click="generateCopy"><Sparkles :size="14" /> {{ copyLoading ? '生成中…' : '生成介绍' }}</button></div><div class="upload-exclude"><ScanLine :size="15" /><span>AI 只生成照片相关描述，不会修改作者、标签和机型。</span></div></div></div><div v-if="aiError" class="ai-result-panel is-error" role="status"><p class="ai-result-error">{{ aiError }}</p><small class="ai-result-note">风格与影调来自本地模型；服务没起来时这里不会伪造标签。</small></div><div v-else-if="aiStyleTags.length || aiToneTags.length" class="ai-result-panel" role="status"><div class="ai-tag-group"><span class="ai-tag-label">STYLE</span><span v-for="tag in aiStyleTags" :key="tag.code" class="ai-tag is-style">{{ tag.label }}<b v-if="tag.percent">{{ tag.percent }}%</b></span></div><div class="ai-tag-group"><span class="ai-tag-label">TONE</span><span v-for="tag in aiToneTags" :key="tag.code" class="ai-tag is-tone">{{ tag.label }}</span><span v-if="aiLatency" class="ai-tag is-meta">{{ aiLatency }}</span></div><small class="ai-result-note">风格与影调由本地模型识别；题材识别仅内测，不在界面展示。</small></div><div v-if="copyResult || copyError" class="ai-copy-panel" role="status"><div v-if="copyResult" class="ai-copy-head"><span class="ai-tag-label">TITLE</span><button v-for="title in copyResult.titles" :key="title" type="button" class="ai-copy-title" @click="uploadTitle = title">{{ title }}</button></div><p v-if="copyError" class="ai-result-error">{{ copyError }}</p><p v-if="copyResult" class="ai-copy-note">{{ copyResult.mode === 'llm' ? 'AI 生成 · 已避开时间/地点/人物关系等画面外信息' : copyResult.note }}</p></div><div class="upload-review-bar"><div class="review-status" :class="`is-${reviewState}`"><template v-if="reviewState === 'idle'"><Info :size="16" /><span>上传后先通过识别图片模型检查</span></template><template v-else-if="reviewState === 'checking'"><LoaderCircle class="spin" :size="16" /><span>模型正在检查画面内容与敏感元素…</span></template><template v-else-if="reviewState === 'approved'"><Check :size="16" /><span>识别通过，可以提交人工审核</span></template><template v-else><Check :size="16" /><span>已提交，等待人工审核</span></template></div><div class="upload-actions"><button class="upload-ghost" type="button" @click="closeUpload">稍后再说</button><button class="upload-submit" type="button" :disabled="reviewState === 'checking'" @click="reviewState === 'approved' ? submitForReview() : runReview()">{{ reviewState === 'approved' ? '提交人工审核' : reviewState === 'checking' ? '检查中…' : '先检查这张照片' }}</button></div></div></section></div></Transition>
+    <Transition name="modal-fade"><div v-if="showUpload" class="upload-backdrop" @click.self="closeUpload"><section class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title"><button class="modal-close" type="button" aria-label="关闭" @click="closeUpload"><X :size="19" /></button><div class="upload-modal-head"><span class="spiral-kicker"><span class="kicker-line" />ADD TO THE FIELD</span><h2 id="upload-title">把你的现场放进照片墙</h2><p>只需要一张照片。署名、标签和机型会被完整保留，其他文字交给你或 AI。</p></div><div class="upload-modal-body"><div class="upload-preview" :class="{ 'has-image': uploadPreview }" @click="chooseFile"><img v-if="uploadPreview" :src="uploadPreview" alt="待上传照片预览" /><div v-else><Upload :size="25" /><strong>拖入或选择一张照片</strong><small>JPG / PNG · 建议长边 1600px 以上</small></div><input ref="uploadInput" type="file" accept="image/jpeg,image/png,image/webp" hidden @change="handleFile" /></div><div class="upload-fields"><label><span>作品标题</span><input v-model="uploadTitle" placeholder="例如：雨停之后的街角" /></label><label><span>这张照片的介绍</span><textarea v-model="uploadDescription" rows="5" placeholder="写下你想留下的那句话，或交给 AI 帮你整理。" /></label><div class="ai-copy-row"><button class="ai-toggle" :class="{ active: useAiCopy }" type="button" @click="useAiCopy = !useAiCopy"><span class="toggle-dot" /><span>允许 AI 美化文字</span></button><button class="ai-generate" type="button" :disabled="!useAiCopy || copyLoading" @click="generateCopy"><Sparkles :size="14" /> {{ copyLoading ? '生成中…' : '生成介绍' }}</button></div><div class="upload-exclude"><ScanLine :size="15" /><span>AI 只生成照片相关描述，不会修改作者、标签和机型。</span></div></div></div><div v-if="aiError" class="ai-result-panel is-error" role="status"><p class="ai-result-error">{{ aiError }}</p><small class="ai-result-note">风格与影调来自本地模型；服务没起来时这里不会伪造标签。</small></div><div v-else-if="aiStyleTags.length || aiToneTags.length || aiSubjectTags.length || aiNeedsReview || aiSubjectGateNote" class="ai-result-panel" role="status"><div v-if="aiStyleTags.length" class="ai-tag-group"><span class="ai-tag-label">STYLE · AI 识别</span><span v-for="tag in aiStyleTags" :key="tag.code" class="ai-tag is-style" :class="{ 'is-muted': tag.removed }"><span>{{ tag.label }}</span><b v-if="tag.percent && !aiNeedsReview">{{ tag.percent }}%</b><button type="button" :aria-label="tag.removed ? '恢复 AI 风格标签' : '移除 AI 风格标签'" @click.stop="toggleAiTag('style', tag.code)">{{ tag.removed ? '恢复' : '移除' }}</button></span></div><div v-if="aiToneTags.length" class="ai-tag-group"><span class="ai-tag-label">TONE · AI 识别</span><span v-for="tag in aiToneTags" :key="tag.code" class="ai-tag is-tone" :class="{ 'is-muted': tag.removed }"><span>{{ tag.label }}</span><button type="button" :aria-label="tag.removed ? '恢复 AI 影调标签' : '移除 AI 影调标签'" @click.stop="toggleAiTag('tone', tag.code)">{{ tag.removed ? '恢复' : '移除' }}</button></span><span v-if="aiLatency" class="ai-tag is-meta">{{ aiLatency }}</span></div><div v-if="aiSubjectTags.length" class="ai-tag-group"><span class="ai-tag-label">SUBJECT · AI 识别</span><span v-for="tag in aiSubjectTags" :key="tag.code" class="ai-tag is-tone" :class="{ 'is-muted': tag.removed }"><span>{{ tag.label }}</span><button type="button" :aria-label="tag.removed ? '恢复 AI 题材标签' : '移除 AI 题材标签'" @click.stop="toggleAiTag('subject', tag.code)">{{ tag.removed ? '恢复' : '移除' }}</button></span></div><div class="ai-tag-group"><span class="ai-tag-label">人工修正</span><span v-for="tag in manualTags" :key="tag.kind + '-' + tag.code" class="ai-tag is-manual"><span>{{ tag.label }}</span><button type="button" aria-label="删除人工标签" @click.stop="removeManualTag(tag)">删除</button></span><span v-if="!manualTags.length" class="ai-result-note">暂无</span></div><div class="ai-tag-group"><select v-model="manualTagKind" aria-label="人工标签类型"><option value="style">风格</option><option value="tone">影调</option><option value="subject">题材</option></select><input v-model="manualTagInput" type="text" maxlength="40" placeholder="输入中文标签或 code" aria-label="输入人工标签" @keyup.enter="addManualTag" /><button type="button" class="ai-copy-title" @click="addManualTag"><Plus :size="13" /> 添加</button></div><small class="ai-result-note">AI 识别与人工修正分开记录；人工增删只保存在当前上传弹窗，不改模型结果。</small><small v-if="aiNeedsReview" class="ai-result-note">建议人工确认：当前置信度低于业务阈值。</small><small v-if="aiSubjectGateNote" class="ai-result-note">{{ aiSubjectGateNote }}</small><small v-else-if="aiConfidenceSource" class="ai-result-note">置信度来源：{{ aiConfidenceSource }}</small></div><div v-if="copyResult || copyError || copyLoading || copyStreamText" class="ai-copy-panel" role="status" aria-live="polite"><div v-if="copyResult" class="ai-copy-head"><span class="ai-tag-label">TITLE</span><button v-for="title in copyResult.titles" :key="title" type="button" class="ai-copy-title" @click="uploadTitle = title">{{ title }}</button></div><div v-if="copyLoading || copyStreamText" class="ai-copy-stream"><span class="ai-tag-label">INTRO</span><span class="ai-copy-stream-text">{{ copyStreamText || '正在整理照片相关描述' }}<i v-if="copyLoading" class="ai-copy-caret" aria-hidden="true" /></span></div><p v-if="copyError" class="ai-result-error">{{ copyError }}</p><p v-if="copyResult" class="ai-copy-note">{{ copyResult.mode === 'llm' ? 'AI 生成 · 已避开时间/地点/人物关系等画面外信息' : copyResult.note }}</p></div><div class="upload-review-bar"><div class="review-status" :class="`is-${reviewState}`"><template v-if="reviewState === 'idle'"><Info :size="16" /><span>上传后先通过识别图片模型检查</span></template><template v-else-if="reviewState === 'checking'"><LoaderCircle class="spin" :size="16" /><span>模型正在检查画面内容与敏感元素…</span></template><template v-else-if="reviewState === 'approved'"><Check :size="16" /><span>识别通过，可以提交人工审核</span></template><template v-else><Check :size="16" /><span>已提交，等待人工审核</span></template></div><div class="upload-actions"><button class="upload-ghost" type="button" @click="closeUpload">稍后再说</button><button class="upload-submit" type="button" :disabled="reviewState === 'checking'" @click="reviewState === 'approved' ? submitForReview() : runReview()">{{ reviewState === 'approved' ? '提交人工审核' : reviewState === 'checking' ? '检查中…' : '先检查这张照片' }}</button></div></div></section></div></Transition>
   </div>
 </template>
+
+<style scoped>
+.spiral-scroll-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(242, 238, 231, .58);
+  font: 10px/1 'DM Mono', ui-monospace, monospace;
+  letter-spacing: .16em;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+.spiral-scroll-hint::before { content: ''; width: 26px; height: 1px; background: rgba(242, 238, 231, .22); }
+.spiral-scroll-hint svg { color: #e5a383; animation: spiral-hint-bob 1.9s ease-in-out infinite; }
+.spiral-scroll-hint:hover { color: #e5a383; }
+@keyframes spiral-hint-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+.detail-upload-row { display: flex; justify-content: flex-end; margin-top: 16px; }
+.detail-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(233, 139, 107, .55);
+  background: rgba(233, 139, 107, .12);
+  color: #ffd9c9;
+  font-size: 10.5px;
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.detail-upload:hover { border-color: rgba(233, 139, 107, .9); background: rgba(233, 139, 107, .2); transform: translateY(-1px); }
+.detail-upload:focus-visible { outline: 2px solid rgba(233, 139, 107, .7); outline-offset: 2px; }
+
+@media (max-width: 720px) {
+  .spiral-scroll-hint { margin-top: 20px; }
+  .detail-upload-row { margin-top: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spiral-scroll-hint svg { animation: none; }
+  .detail-upload:hover { transform: none; }
+}
+</style>

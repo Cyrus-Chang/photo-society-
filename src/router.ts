@@ -20,6 +20,7 @@ const router = createRouter({
     { path: '/circle', name: 'circle', component: () => import('./pages/CirclePage.vue'), meta: { requiresAuth: true } },
     { path: '/photographers/:id', name: 'photographer', component: () => import('./pages/PhotographerPage.vue'), meta: { requiresAuth: true } },
     { path: '/orders', name: 'orders', component: () => import('./pages/OrdersPage.vue'), meta: { requiresAuth: true } },
+    { path: '/profile', name: 'profile', component: () => import('./pages/ProfilePage.vue'), meta: { requiresAuth: true } },
     { path: '/studio', name: 'studio', component: () => import('./pages/StudioPage.vue'), meta: { requiresAuth: true } },
     { path: '/publish', name: 'publish', component: () => import('./pages/PublishPage.vue'), meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', redirect: '/' }

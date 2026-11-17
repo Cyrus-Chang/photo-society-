@@ -10,6 +10,7 @@ import AgentMatch from '../components/AgentMatch.vue'
       <span class="match-eyebrow">AI MATCH / 2026</span>
       <h1>一句话，<em>说完你要的现场。</em></h1>
       <p>模型会先把你的需求拆成槽位，再去作品库里做向量检索、核对城市与档期，最后给出候选摄影师和推荐理由。每一步工具调用都可以展开核对——不做黑箱。</p>
+      <p class="match-agent-note">LLM 规划器是可选能力；无 key 时使用规则规划。LLM 规划器在无 key 时不可验证。</p>
     </header>
 
     <AgentMatch />

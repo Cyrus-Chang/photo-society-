@@ -86,7 +86,33 @@ const extraWorks: WorkCard[] = [
   }
 ]
 
-works.push(...extraWorks, ...cyrusWorks)
+/* 2026-11-16 用户补的三张实拍（也是薛定谔的作品）。
+   EXIF 已丢：机型没有的就留「待补充」，不编。
+   地点/城市：用户 22:40 答复「西藏」（经幡、银河两张），没细化到具体机位，就写西藏。
+   这三张用户还要同时进首页螺旋墙（Q5「进」），所以提成常量给两处共用，
+   避免同一个 id 在 works 里出现两次（列表 key 会重复）。 */
+const xdgWorks: WorkCard[] = [
+  {
+    id: 'xdg-01', imageUrl: localWorkUrl('tiananmen.webp'), title: '晴空下的城楼',
+    photographerId: 'p-schedinger', photographerName: '薛定谔', photographerAvatar: makeAvatar('薛定谔'),
+    location: '北京 · 天安门', city: '北京', styles: ['建筑', '纪实', '晴天'], types: ['建筑', '城市'],
+    device: '待补充', shootDate: '作品集 · 城市记录', canBook: false, matchReason: '晴空与城楼的色彩关系', accent: '#c8564b'
+  },
+  {
+    id: 'xdg-02', imageUrl: localWorkUrl('prayer-flags.webp'), title: '经幡在风里',
+    photographerId: 'p-schedinger', photographerName: '薛定谔', photographerAvatar: makeAvatar('薛定谔'),
+    location: '西藏', city: '西藏', styles: ['高饱和', '色彩', '仰拍'], types: ['风景', '文化'],
+    device: 'DJI Osmo Pocket 4', shootDate: '作品集 · 色彩记录', canBook: false, matchReason: '仰拍视角里的经幡与天色', accent: '#d55762'
+  },
+  {
+    id: 'xdg-03', imageUrl: localWorkUrl('milky-way.webp'), title: '银河落在这条路上',
+    photographerId: 'p-schedinger', photographerName: '薛定谔', photographerAvatar: makeAvatar('薛定谔'),
+    location: '西藏', city: '西藏', styles: ['星空', '蓝调', '夜色'], types: ['风景', '夜景'],
+    device: '待补充', shootDate: '作品集 · 星空记录', canBook: false, matchReason: '银河与地面人间的同框', accent: '#6b7fb3'
+  }
+]
+
+works.push(...extraWorks, ...xdgWorks, ...cyrusWorks)
 
 /* =========================================================================
    螺旋照片墙专用作品（2026-11-15）
@@ -121,6 +147,25 @@ function spiralWork(index: number, owner: typeof QIN | typeof QING, title: strin
   }
 }
 
+/** 螺旋墙用「已有的作品图」造一条，避免为墙面再存一份文件（用户：螺旋墙只增加照片） */
+function wallWork(ownerId: string, ownerName: string, device: string, file: string, title: string, styles: string[], types: string[]): WorkCard {
+  return {
+    id: `wall-${file.replace('.webp', '')}`,
+    imageUrl: localWorkUrl(file),
+    title,
+    photographerId: ownerId,
+    photographerName: ownerName,
+    photographerAvatar: makeAvatar(ownerName),
+    location: '西安 · 作品集',
+    city: '西安',
+    styles,
+    types,
+    device,
+    shootDate: '作品集 · 2026',
+    canBook: false
+  }
+}
+
 /** 打散混排：祺与青耘交替出现，避免同类扎堆 */
 export const spiralWorks: WorkCard[] = [
   spiralWork(1, QIN, '钢架塔尖', ['城市', '建筑', '蓝天'], ['建筑', '城市']),
@@ -138,10 +183,119 @@ export const spiralWorks: WorkCard[] = [
   spiralWork(13, QIN, '江对岸的天际线', ['夜景', '城市', '蓝调'], ['城市', '风景']),
   spiralWork(14, QING, '抬头看见的树冠', ['自然', '仰拍', '绿调'], ['风景', '自然']),
   spiralWork(15, QING, '木台阶上的白鸽', ['生态', '人文', '浅景深'], ['生态', '纪实']),
-  spiralWork(16, QING, '塔内的穹顶', ['古建', '室内', '高饱和'], ['古建', '建筑'])
+  spiralWork(16, QING, '塔内的穹顶', ['古建', '室内', '高饱和'], ['古建', '建筑']),
+  // 2026-11-15 用户：螺旋墙只增加照片。以下 12 张直接复用已入库的作品图。
+  wallWork('p-ume', 'U咩人', '尼康 D7100', 'ume-04.webp', '面纱星云的丝状轮廓', ['星空', '长曝光', '暗调'], ['天文', '风景']),
+  wallWork('p-ume', 'U咩人', '尼康 D7100', 'ume-12.webp', '绕北天极转一圈的星轨', ['星轨', '长曝光', '夜空'], ['天文', '风景']),
+  wallWork('p-ume', 'U咩人', '尼康 D7100', 'ume-11.webp', '银河的核心', ['银河', '长曝光', '暗调'], ['天文', '风景']),
+  wallWork('p-ume', 'U咩人', '尼康 D7100', 'ume-05.webp', '一团蓝色的星', ['星空', '星团', '暗调'], ['天文', '风景']),
+  wallWork('p-ume', 'U咩人', '尼康 D7100', 'ume-07.webp', '树下的一对父女', ['人像', '自然光', '生活感'], ['人像', '纪实']),
+  wallWork('p-yiwukaluo', '伊芜卡洛', '尼康 ZR', 'yiwu-02.webp', '夜里跨过桥面的车流', ['车流', '夜景', '长曝光'], ['城市', '夜景']),
+  wallWork('p-yiwukaluo', '伊芜卡洛', '尼康 ZR', 'yiwu-08.webp', '从窗洞里框住的高架', ['框景', '城市', '日间'], ['城市', '建筑']),
+  wallWork('p-yiwukaluo', '伊芜卡洛', '尼康 ZR', 'yiwu-10.webp', '倾斜的湖面与红桥', ['水景', '倒影', '秋色'], ['风景', '自然']),
+  wallWork('p-tianshicong', '天使葱', '尼康 D5100', 'ts-11.webp', '逆光的枫叶', ['植物', '逆光', '秋色'], ['植物', '自然']),
+  wallWork('p-tianshicong', '天使葱', '尼康 D5100', 'ts-03.webp', '落羽杉的红枝', ['植物', '秋色', '逆光'], ['植物', '自然']),
+  wallWork('p-tianshicong', '天使葱', '尼康 D5100', 'ts-08.webp', '路边的一只狸花与一只橘猫', ['动物', '自然光', '生活感'], ['动物', '纪实']),
+  wallWork('p-tianshicong', '天使葱', '尼康 D5100', 'ts-12.webp', '林间的石头与彩叶', ['秋色', '林间', '柔和'], ['风景', '自然'])
 ]
 
+/* 首页螺旋墙实际用的数据：原有 28 张（16 张用户实拍 + 12 张复用作品图），
+   加上 2026-11-16 用户 Q5 拍板「进」的薛定谔三张。
+   注意：墙读这个数组，不要把这 3 条再 push 进 spiralWorks，否则 works 里会出现重复 id。 */
+export const spiralWallWorks: WorkCard[] = [...spiralWorks, ...xdgWorks]
+
 works.push(...spiralWorks)
+
+/* =========================================================================
+   用户 2026-11-15 21:1x 新给的两组作品（20 张，已转 WebP 落到 src/assets/works/）
+     · U咩人   —— 15 张，尼康 D7100
+     · 伊芜卡洛 —— 5 张，尼康 ZR
+   城市、简介、报价一律「待补充」：用户只给了作者名与机型，不代为编造（C2）。
+   标题按画面客观描述，不写故事。
+   每人数组的第一张是「代表作」：选作品页按摄影师去重后，留下的就是它。
+   ========================================================================= */
+const UME = { id: 'p-ume', name: 'U咩人', city: '待补充', device: '尼康 D7100' }
+const YIWU = { id: 'p-yiwukaluo', name: '伊芜卡洛', city: '待补充', device: '尼康 ZR' }
+
+function setWork(owner: typeof UME | typeof YIWU, file: string, title: string, styles: string[], types: string[]): WorkCard {
+  return {
+    id: file.replace('.webp', ''),
+    imageUrl: localWorkUrl(file),
+    title,
+    photographerId: owner.id,
+    photographerName: owner.name,
+    photographerAvatar: makeAvatar(owner.name),
+    location: `${owner.city} · 作品集`,
+    city: owner.city,
+    styles,
+    types,
+    device: owner.device,
+    shootDate: '作品集 · 2026',
+    canBook: false
+  }
+}
+
+const umeWorks: WorkCard[] = [
+  setWork(UME, 'ume-04.webp', '面纱星云的丝状轮廓', ['星空', '长曝光', '暗调'], ['天文', '风景']),
+  setWork(UME, 'ume-01.webp', '深空里的一片红', ['星空', '长曝光', '暗调'], ['天文', '风景']),
+  setWork(UME, 'ume-02.webp', '高架桥上方向相反的两种车灯', ['车流', '夜景', '长曝光'], ['城市', '夜景']),
+  setWork(UME, 'ume-03.webp', '仙女座星系与它的伴星系', ['星空', '长曝光', '暗调'], ['天文', '风景']),
+  setWork(UME, 'ume-05.webp', '一团蓝色的星', ['星空', '星团', '暗调'], ['天文', '风景']),
+  setWork(UME, 'ume-06.webp', '半个月面和它的环形山', ['月亮', '长焦', '暗调'], ['天文', '静物']),
+  setWork(UME, 'ume-07.webp', '树下的一对父女', ['人像', '自然光', '生活感'], ['人像', '纪实']),
+  setWork(UME, 'ume-08.webp', '操场边低头看手机的人', ['纪实', '逆光', '校园'], ['纪实', '人像']),
+  setWork(UME, 'ume-09.webp', '星海里的一条红色暗带', ['星空', '长曝光', '暗调'], ['天文', '风景']),
+  setWork(UME, 'ume-10.webp', '荷塘里的一朵荷花', ['花卉', '长焦', '浅景深'], ['花卉', '自然']),
+  setWork(UME, 'ume-11.webp', '银河的核心', ['银河', '长曝光', '暗调'], ['天文', '风景']),
+  setWork(UME, 'ume-12.webp', '绕北天极转一圈的星轨', ['星轨', '长曝光', '夜空'], ['天文', '风景']),
+  setWork(UME, 'ume-13.webp', '黑金配色的假面骑士手办', ['静物', '灯位', '手办'], ['静物', '手办']),
+  setWork(UME, 'ume-14.webp', '猎户座大星云', ['星空', '长曝光', '暗调'], ['天文', '风景']),
+  setWork(UME, 'ume-15.webp', '树枝上方扫过的星轨', ['星轨', '长曝光', '夜空'], ['天文', '风景'])
+]
+
+const yiwuWorks: WorkCard[] = [
+  setWork(YIWU, 'yiwu-02.webp', '夜里跨过桥面的车流', ['车流', '夜景', '长曝光'], ['城市', '夜景']),
+  setWork(YIWU, 'yiwu-01.webp', '一朵向日葵', ['花卉', '浅景深', '自然光'], ['花卉', '自然']),
+  setWork(YIWU, 'yiwu-03.webp', '广场上坐着的两个人', ['纪实', '生活感', '城市'], ['纪实', '人文']),
+  setWork(YIWU, 'yiwu-04.webp', '停在路边的三轮车', ['纪实', '街头', '生活感'], ['纪实', '街头']),
+  setWork(YIWU, 'yiwu-05.webp', '草地上的青铜群像', ['雕塑', '纪实', '绿调'], ['雕塑', '纪实'])
+]
+
+works.push(...umeWorks, ...yiwuWorks)
+
+/* =========================================================================
+   第二批（2026-11-15 21:3x，用户同一次发的）
+     · 伊芜卡洛 —— 再 5 张（yiwu-06..10）
+     · 天使葱   —— 12 张，尼康 D5100（机型见水印），
+       用户原话「必须在约拍页放这些作品」；螺旋照片墙属于首页，本轮不动。
+   ========================================================================= */
+const TIANSHI = { id: 'p-tianshicong', name: '天使葱', city: '待补充', device: '尼康 D5100' }
+
+const yiwuMore: WorkCard[] = [
+  setWork(YIWU, 'yiwu-08.webp', '从窗洞里框住的高架', ['框景', '城市', '日间'], ['城市', '建筑']),
+  setWork(YIWU, 'yiwu-06.webp', '草地上的一只喜鹊', ['动物', '自然光', '绿色'], ['动物', '纪实']),
+  setWork(YIWU, 'yiwu-09.webp', '一朵黄色的菊花', ['花卉', '微距', '暖调'], ['花卉', '自然']),
+  setWork(YIWU, 'yiwu-10.webp', '倾斜的湖面与红桥', ['水景', '倒影', '秋色'], ['风景', '自然']),
+  setWork(YIWU, 'yiwu-07.webp', '虚焦的几颗暖灯', ['虚焦', '暖调', '抽象'], ['抽象', '静物'])
+]
+
+// 代表作放第一条：逆光的枫叶
+const tianWork: WorkCard[] = [
+  setWork(TIANSHI, 'ts-11.webp', '逆光的枫叶', ['植物', '逆光', '秋色'], ['植物', '自然']),
+  setWork(TIANSHI, 'ts-01.webp', '爬满墙面的地锦', ['植物', '绿色', '建筑'], ['植物', '纪实']),
+  setWork(TIANSHI, 'ts-02.webp', '楼顶的尖塔与路灯', ['建筑', '阴天', '城市'], ['建筑', '城市']),
+  setWork(TIANSHI, 'ts-03.webp', '落羽杉的红枝', ['植物', '秋色', '逆光'], ['植物', '自然']),
+  setWork(TIANSHI, 'ts-04.webp', '稻穗与远山', ['田野', '逆光', '金色'], ['自然', '风景']),
+  setWork(TIANSHI, 'ts-05.webp', '路灯下湿地面上的落叶', ['夜景', '低光', '细节'], ['静物', '纪实']),
+  setWork(TIANSHI, 'ts-06.webp', '夜里被灯打亮的枝叶', ['夜景', '逆光', '植物'], ['植物', '静物']),
+  setWork(TIANSHI, 'ts-07.webp', '夜里的一片虚光', ['夜景', '虚焦', '抽象'], ['抽象', '静物']),
+  setWork(TIANSHI, 'ts-08.webp', '路边的一只狸花与一只橘猫', ['动物', '自然光', '生活感'], ['动物', '纪实']),
+  setWork(TIANSHI, 'ts-09.webp', '从竹叶缝里漏下来的光', ['植物', '逆光', '绿色'], ['植物', '自然']),
+  setWork(TIANSHI, 'ts-10.webp', '地上散落的黄叶', ['低角度', '秋色', '细节'], ['静物', '自然']),
+  setWork(TIANSHI, 'ts-12.webp', '林间的石头与彩叶', ['秋色', '林间', '柔和'], ['风景', '自然'])
+]
+
+works.push(...yiwuMore, ...tianWork)
 
 export const photographers: Photographer[] = [
   { id: 'p-001', name: '林初禾', avatar: 'https://i.pravatar.cc/160?img=47', city: '西安', bio: '喜欢把现场的风、灯和人的小动作都留在照片里。常在古城和海边拍摄。', tags: ['古风人像', '夜景', '轻旅拍'], devices: ['Sony α7C II', 'DJI Osmo Pocket 3'], responseTime: '通常 20 分钟内回复', nextSlot: '周六 18:00 后', works: ['w-001', 'w-004'], verified: true },
@@ -149,9 +303,14 @@ export const photographers: Photographer[] = [
   { id: 'p-003', name: '周末', avatar: 'https://i.pravatar.cc/160?img=32', city: '西安', bio: '从街角开始认识一座城，也记录每个人最松弛的那一面。', tags: ['街拍', '汉服', '生活感'], devices: ['Canon EOS R8'], responseTime: '通常当天回复', nextSlot: '周日 09:00—13:00', works: ['w-003', 'w-006'], verified: true },
   { id: 'p-cyrus', name: 'Cyrus_chang', avatar: 'https://i.pravatar.cc/160?img=68', city: '西安', bio: '摄影爱好者，喜欢用手机和口袋云台记录旅行、建筑和身边的人。', tags: ['旅行纪实', '建筑', '蓝调人像', '活动记录'], devices: ['小米 15', '大疆 Osmo Pocket 3'], role: 'enthusiast', responseTime: '通常当天回复', nextSlot: '欢迎先看作品再交流', works: cyrusWorks.map((work) => work.id), verified: false },
   // 用户提供的两张实拍，作者由用户订正（2026-11-14）。除名字外一律「待补充」，不编造。
-  { id: 'p-schedinger', name: '薛定谔', avatar: makeAvatar('薛定谔'), city: '待补充', bio: '待补充', tags: [], devices: [], role: 'enthusiast', responseTime: '待补充', nextSlot: '待补充', works: ['cyrus-028'], verified: false },
+  // 2026-11-16 用户补的三张实拍（天安门 / 经幡 / 银河）挂到薛定谔名下
+{ id: 'p-schedinger', name: '薛定谔', avatar: makeAvatar('薛定谔'), city: '待补充', bio: '待补充', tags: [], devices: [], role: 'enthusiast', responseTime: '待补充', nextSlot: '待补充', works: ['cyrus-028', 'xdg-01', 'xdg-02', 'xdg-03'], verified: false },
   { id: 'p-qinihaoheguozhi', name: '祺你喝好果汁', avatar: makeAvatar('祺你喝好果汁'), city: '上海', bio: '待补充', tags: [], devices: ['索尼 A7M5'], role: 'enthusiast', responseTime: '待补充', nextSlot: '待补充', works: ['cyrus-027', 'sp-01', 'sp-03', 'sp-06', 'sp-09', 'sp-13'], verified: false },
-  { id: 'p-qingyun', name: '青耘', avatar: makeAvatar('青耘'), city: '南京', bio: '待补充', tags: [], devices: ['尼康 D7100'], role: 'enthusiast', responseTime: '待补充', nextSlot: '待补充', works: ['sp-02', 'sp-04', 'sp-05', 'sp-07', 'sp-08', 'sp-10', 'sp-11', 'sp-12', 'sp-14', 'sp-15', 'sp-16'], verified: false }
+  { id: 'p-qingyun', name: '青耘', avatar: makeAvatar('青耘'), city: '南京', bio: '待补充', tags: [], devices: ['尼康 D7100'], role: 'enthusiast', responseTime: '待补充', nextSlot: '待补充', works: ['sp-02', 'sp-04', 'sp-05', 'sp-07', 'sp-08', 'sp-10', 'sp-11', 'sp-12', 'sp-14', 'sp-15', 'sp-16'], verified: false },
+  // 2026-11-15 用户新给：只给作者名与机型，城市/简介/报价/档期一律「待补充」。
+  { id: 'p-ume', name: 'U咩人', avatar: makeAvatar('U咩人'), city: '待补充', bio: '待补充', tags: ['星空', '长曝光', '天文', '城市夜景', '纪实'], devices: ['尼康 D7100'], role: 'enthusiast', responseTime: '待补充', nextSlot: '待补充', works: umeWorks.map((work) => work.id), verified: false },
+  { id: 'p-yiwukaluo', name: '伊芜卡洛', avatar: makeAvatar('伊芜卡洛'), city: '待补充', bio: '待补充', tags: ['城市纪实', '生活感', '夜景', '花卉'], devices: ['尼康 ZR'], role: 'enthusiast', responseTime: '待补充', nextSlot: '待补充', works: yiwuWorks.map((work) => work.id).concat(yiwuMore.map((work) => work.id)), verified: false },
+  { id: 'p-tianshicong', name: '天使葱', avatar: makeAvatar('天使葱'), city: '待补充', bio: '待补充', tags: ['植物', '逆光', '秋色', '街头细节'], devices: ['尼康 D5100'], role: 'enthusiast', responseTime: '待补充', nextSlot: '待补充', works: tianWork.map((work) => work.id), verified: false }
 ]
 
 export const posts: MarketPost[] = [
@@ -160,7 +319,18 @@ export const posts: MarketPost[] = [
   { id: 'post-003', kind: 'companion', mode: 'pure-companion', title: '周六一起去城墙边拍秋天，互相掌机', city: '西安', location: '城墙南门', date: '11 月 14 日', time: '15:30—18:00', author: '木子', avatar: 'https://i.pravatar.cc/96?img=25', description: '两个人已经成行，想再找 1—2 位同好。带自己的相机，AA 交通，不接商业单。', spots: '还差 2 位', status: '找搭子' },
   { id: 'post-004', kind: 'companion', mode: 'paid-companion', title: '顺路带拍：周日大雁塔汉服小像', city: '西安', location: '大雁塔北广场', date: '11 月 15 日', time: '09:00—12:00', author: '周末', avatar: 'https://i.pravatar.cc/96?img=32', description: '我本来要去拍一组汉服，顺路带 1 位，互相尊重现场节奏，成片 8—10 张。', budget: '象征性分摊 ¥ 120', spots: '还差 1 位', status: '可报名' },
   { id: 'post-005', kind: 'requirement', title: '想拍一组有电影感的毕业照', city: '成都', location: '玉林 / 东郊记忆', date: '11 月 21 日', time: '全天', author: '小满', avatar: 'https://i.pravatar.cc/96?img=5', description: '3 位女生，偏生活化，不要标准毕业照。可接受不同风格摄影师提案。', budget: '预算 ¥ 800—1200', status: '招募中' },
-  { id: 'post-006', kind: 'availability', title: '青岛小麦岛日落旅拍，开放一个轻量档期', city: '青岛', location: '小麦岛公园', date: '11 月 20 日', time: '16:00—18:30', author: '林初禾', avatar: 'https://i.pravatar.cc/96?img=47', description: '已经在青岛，不赶时间，适合情侣、朋友或一个人的轻旅拍。', budget: '¥ 680 起', status: '可预约' }
+  { id: 'post-006', kind: 'availability', title: '青岛小麦岛日落旅拍，开放一个轻量档期', city: '青岛', location: '小麦岛公园', date: '11 月 20 日', time: '16:00—18:30', author: '林初禾', avatar: 'https://i.pravatar.cc/96?img=47', description: '已经在青岛，不赶时间，适合情侣、朋友或一个人的轻旅拍。', budget: '¥ 680 起', status: '可预约' },
+  /* 2026-11-16 用户：「接拍是想被拍的人发的」。
+     上面 post-002 / 003 / 004 / 006 是摄影师视角（开放档期、顺路带拍）或搭子视角，不再进接拍列表；
+     这里补 4 条「想被拍的人」发的需求帖，避免接拍页只剩两条。 */
+  { id: 'post-007', kind: 'requirement', title: '大唐不夜城想拍一组暖光夜景人像', city: '西安', location: '大唐不夜城 / 大雁塔南广场', date: '11 月 22 日', time: '19:00—21:00', author: '鹿鸣', avatar: makeAvatar('鹿鸣'), description: '一个人，想拍夜景里偏暖的光。没有服化，衣服自带，能接受走街串巷找光。', budget: '预算 ¥ 500—800', status: '招募中' },
+  { id: 'post-008', kind: 'requirement', title: '太古里周边想要一组城市街拍', city: '成都', location: '太古里 / 大慈寺附近', date: '11 月 23 日', time: '14:00—16:00', author: '阿棠', avatar: makeAvatar('阿棠'), description: '第一次约拍，想要松弛一点的街拍，不需要摆太多姿势。可以先看你的作品再决定。', budget: '¥ 400 起', status: '招募中' },
+  { id: 'post-009', kind: 'requirement', title: '八大关的秋天，想拍一组胶片感', city: '青岛', location: '八大关 / 太平角', date: '11 月 24 日', time: '09:00—11:00', author: '沈迟', avatar: makeAvatar('沈迟'), description: '喜欢偏灰的胶片色，上午光线好。两个人一起拍，偏生活化的记录就行。', budget: '预算 ¥ 600—900', status: '招募中' },
+  { id: 'post-010', kind: 'requirement', title: '室内自然光，想拍一组安静的肖像', city: '西安', location: '曲江书城 / 附近咖啡馆', date: '11 月 21 日', time: '15:00—17:00', author: '小舟', avatar: makeAvatar('小舟'), description: '不喜欢强烈的打光，想拍窗边自然光下的状态。时长一小时左右就够。', budget: '¥ 450 起', status: '招募中' },
+  /* 2026-11-16 用户：接拍里也要有搭子帖。下面两条是「纯搭子」（大家一起拍），
+     不含摄影师「顺路带拍」那种视角（mode: 'paid-companion'），那条按用户口径不进接拍。 */
+  { id: 'post-011', kind: 'companion', mode: 'pure-companion', title: '周末去拍银杏，想找个人一起走', city: '西安', location: '兴庆宫公园', date: '11 月 23 日', time: '10:00—12:00', author: '苏木', avatar: makeAvatar('苏木'), description: '带一台老胶片机，主要想拍树和光。不用配合我，各拍各的也行，中午可以一起吃个饭。', spots: '还差 1 位', status: '找搭子' },
+  { id: 'post-012', kind: 'companion', mode: 'pure-companion', title: '想找人一起去海边拍日出', city: '青岛', location: '石老人海水浴场', date: '11 月 25 日', time: '05:30—07:30', author: '阿鲸', avatar: makeAvatar('阿鲸'), description: '起得来就一起，拍完各回各家。有车可以顺路带，没有就地铁站碰头。', spots: '还差 2 位', status: '找搭子' }
 ]
 
 export const orders: BookingOrder[] = [
@@ -168,14 +338,42 @@ export const orders: BookingOrder[] = [
   { id: 'order-2397', workId: 'w-005', photographerId: 'p-002', photographerName: '赵野', photographerAvatar: 'https://i.pravatar.cc/96?img=12', title: '曲江自然光肖像', location: '西安 · 曲江', date: '11 月 09 日', time: '15:00—17:00', price: '¥ 520', status: 'shooting-done', statusLabel: '待结清', updatedAt: '2 天前' }
 ]
 
+// 2026-11-15 用户拍板：所有摄影师目前所在地先统一记「西安」，地区分配之后再逐个改。
+// 只改摄影师所在地；作品的 location 仍是真实拍摄地（外滩那张照样写上海）。
+photographers.forEach((item) => { item.city = '西安' })
+
+/**
+ * 约拍页的作品检索。
+ * 2026-11-15 用户拍板：城市是硬过滤，口径是「他人在哪」而不是「这张照片在哪拍的」；
+ * 场景只影响排序、不剔除——按命中关键词打分，分高的排前面，0 命中的照样留在列表里。
+ * 去重（一个摄影师只留一张）在页面层做，因为「留哪张」要按当场排序决定。
+ */
 export function searchWorks(query: DiscoverQuery) {
   const city = query.location.includes('西安') ? '西安' : query.location.includes('青岛') ? '青岛' : query.location.includes('成都') ? '成都' : ''
-  const scene = query.scene.toLowerCase()
-  return works.filter((work) => {
-    const cityMatches = !city || work.city === city
-    const sceneMatches = !scene || work.styles.some((style) => scene.includes(style) || style.includes(scene)) || work.title.includes(query.scene) || work.location.includes(query.scene)
-    return cityMatches && (sceneMatches || !scene)
-  }).concat(works.filter((work) => city && work.city === city && !works.filter((item) => item.city === city).includes(work)).slice(0, 0))
+  const baseCity = new Map(photographers.map((item) => [item.id, item.city]))
+  const inCity = works.filter((work) => {
+    if (!city) return true
+    return (baseCity.get(work.photographerId) ?? work.city) === city || work.city === city
+  })
+  const scene = query.scene.trim().toLowerCase()
+  if (!scene) return inCity
+  const scoreOf = (work: WorkCard) => {
+    let hits = 0
+    for (const tag of work.styles.concat(work.types || [])) {
+      if (scene.includes(tag.toLowerCase())) hits += 2
+    }
+    if (work.title && scene.includes(work.title.toLowerCase())) hits += 3
+    if (work.location && scene.includes(work.location.toLowerCase())) hits += 1
+    const haystack = `${work.title}${work.styles.join('')}${(work.types || []).join('')}`
+    for (const token of ['夜景', '古风', '人像', '灯笼', '蓝调', '星轨', '逆光', '街拍', '旅拍', '胶片', '纪实', '建筑']) {
+      if (scene.includes(token) && haystack.includes(token)) hits += 1
+    }
+    return hits
+  }
+  return inCity
+    .map((work) => ({ work, score: scoreOf(work) }))
+    .sort((a, b) => b.score - a.score)
+    .map((item) => item.work)
 }
 
 /* =========================================================================

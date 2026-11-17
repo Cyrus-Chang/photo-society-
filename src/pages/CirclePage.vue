@@ -16,13 +16,13 @@ import { ArrowRight } from 'lucide-vue-next'
       <ul>
         <li>圈子怎么分：按城市、主题，还是按拍摄题材？</li>
         <li>一条圈子帖要写哪些字段（时间 / 地点 / 人数 / 是否需要审核）？</li>
-        <li>和集市里的「搭子帖」是什么关系：合并、拆开，还是圈子只做长期组织？</li>
+        <li>和接拍里的「搭子帖」是什么关系：合并、拆开，还是圈子只做长期组织？</li>
       </ul>
     </div>
 
     <div class="circle-actions">
       <router-link class="button" to="/">回到首页</router-link>
-      <router-link class="button button-secondary" to="/market">先去集市看搭子帖 <ArrowRight :size="15" /></router-link>
+      <router-link class="button button-secondary" to="/market">先去接拍看搭子帖 <ArrowRight :size="15" /></router-link>
     </div>
   </div>
 </template>

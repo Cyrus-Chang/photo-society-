@@ -1,4 +1,5 @@
 import { computed, reactive } from 'vue'
+import { canonicalName } from './account'
 
 /**
  * 极简会话层：只为演示「未登录 → 登录 → 选身份 → 进入产品」这条链路。
@@ -40,7 +41,8 @@ function read(): SessionState {
     const parsed = JSON.parse(raw) as Partial<SessionState>
     return {
       authed: Boolean(parsed.authed),
-      name: typeof parsed.name === 'string' ? parsed.name : '',
+      // 旧会话里的「小满」跟着账号一起改名成 cyrus，避免刷新后还显示旧称呼
+      name: typeof parsed.name === 'string' ? canonicalName(parsed.name) : '',
       role: (parsed.role as RoleKey) || '',
       since: Number(parsed.since) || 0,
       mbti: typeof parsed.mbti === 'string' ? parsed.mbti : ''
@@ -70,6 +72,12 @@ export function signIn(name: string, mbti = '') {
   session.role = ''
   session.since = Date.now()
   session.mbti = mbti
+  persist()
+}
+
+/** 资料页改「显示称呼」用；只改当前会话里的展示名，密码登录的账号名仍以手机号为准 */
+export function setName(name: string) {
+  session.name = name.trim() || '访客'
   persist()
 }
 

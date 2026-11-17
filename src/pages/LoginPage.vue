@@ -89,8 +89,10 @@ async function submit() {
 function finish(name: string) {
   signIn(name)
   const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
-  if (redirect) router.replace(redirect)
-  else router.replace({ name: 'discover', query: { filter: '1' } })
+  // 登录后先落到 /discover（不带 filter），让「选身份」先出现；
+  // 筛选弹窗由身份完成后的「要不要开始约拍」确认再打开，避免两个弹窗同时出现。
+  if (redirect && !redirect.startsWith('/discover')) router.replace(redirect)
+  else router.replace({ name: 'discover' })
 }
 
 onBeforeUnmount(() => window.clearInterval(timer))
