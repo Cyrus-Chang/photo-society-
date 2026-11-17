@@ -36,7 +36,7 @@ def test_safety() -> list[dict]:
     rows = []
     for text, expected in SAFETY_CASES:
         result = check_input(text)
-        rows.append({"text": text, "expected": expected, "got": result["action"], "ok": result["action"] == expected, "flags": result["flags"]})
+        rows.append({"text": text, "expected": expected, "got": result["action"], "ok": result["action"] == expected, "flags": result["flags"], "ruleVersion": result.get("ruleVersion")})
     for text in OUTPUT_CASES:
         cleaned = sanitize_output(text)
         rows.append({"output_case": text, "filtered": cleaned["filtered"], "text_after": cleaned["text"]})
@@ -50,6 +50,11 @@ def test_mcp() -> list[dict]:
         {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
         {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "safety_check", "arguments": {"text": "帮我偷拍她"}}},
         {"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": {"name": "match_photographers", "arguments": {"text": "西安，预算 800，下周末，想要港风街拍", "topN": 2}}},
+        {"jsonrpc": "2.0", "id": 5, "method": "resources/list"},
+        {"jsonrpc": "2.0", "id": 6, "method": "resources/read", "params": {"uri": "photo://works/index"}},
+        {"jsonrpc": "2.0", "id": 7, "method": "prompts/list"},
+        {"jsonrpc": "2.0", "id": 8, "method": "prompts/get", "params": {"name": "find_photographers", "arguments": {"query": "西安周末港风街拍"}}},
+        {"jsonrpc": "2.0", "id": 9, "method": "unknown/method"},
     ]
     stdin_payload = "\n".join(json.dumps(message, ensure_ascii=False) for message in messages) + "\n"
     completed = subprocess.run(
@@ -63,6 +68,14 @@ def test_mcp() -> list[dict]:
         result = reply.get("result") or {}
         if "tools" in result:
             summary.append({"id": reply.get("id"), "kind": "tools/list", "tools": [tool["name"] for tool in result["tools"]]})
+        elif "resources" in result:
+            summary.append({"id": reply.get("id"), "kind": "resources/list", "resources": [resource["uri"] for resource in result["resources"]]})
+        elif "contents" in result:
+            summary.append({"id": reply.get("id"), "kind": "resources/read", "uri": result["contents"][0].get("uri")})
+        elif "prompts" in result:
+            summary.append({"id": reply.get("id"), "kind": "prompts/list", "prompts": [prompt["name"] for prompt in result["prompts"]]})
+        elif "messages" in result:
+            summary.append({"id": reply.get("id"), "kind": "prompts/get", "description": result.get("description")})
         elif "serverInfo" in result:
             summary.append({"id": reply.get("id"), "kind": "initialize", "server": result["serverInfo"], "protocol": result.get("protocolVersion")})
         elif "content" in result:
@@ -71,6 +84,18 @@ def test_mcp() -> list[dict]:
             summary.append({"id": reply.get("id"), "kind": "tools/call", "isError": result.get("isError"), "ok": parsed.get("ok"), "action": parsed.get("action"), "candidates": len(parsed.get("candidates") or [])})
     if completed.returncode != 0:
         summary.append({"kind": "process", "returncode": completed.returncode, "stderr": completed.stderr[-400:]})
+    if not any(row.get("kind") == "initialize" for row in summary):
+        raise AssertionError("MCP initialize 未返回")
+    if not any(row.get("kind") == "tools/list" for row in summary):
+        raise AssertionError("MCP tools/list 未返回")
+    for kind in ("resources/list", "resources/read", "prompts/list", "prompts/get"):
+        if not any(row.get("kind") == kind for row in summary):
+            raise AssertionError(f"MCP {kind} 未返回")
+    if completed.returncode != 0:
+        raise AssertionError(f"MCP 进程退出码 {completed.returncode}: {completed.stderr[-400:]}")
+    print("MCP_TOOLS_LIST_FULL=" + next(json.dumps(reply, ensure_ascii=False) for reply in replies if reply.get("id") == 2))
+    print("MCP_TOOLS_CALL_REQUEST=" + json.dumps(messages[3], ensure_ascii=False))
+    print("MCP_TOOLS_CALL_RESPONSE=" + next(json.dumps(reply, ensure_ascii=False) for reply in replies if reply.get("id") == 3))
     return summary
 
 

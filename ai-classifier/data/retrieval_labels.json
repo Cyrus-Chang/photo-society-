@@ -1,0 +1,7 @@
+{
+  "schema": "retrieval-label-v1",
+  "description": "由人工标注员填写，不得用模型结果、标题或标签推断。每条 query 只能有一个 expected_id。",
+  "required": ["query", "expected_id", "annotator", "source"],
+  "sourcePolicy": "source 必须为 human；至少 40 条有效且 query 唯一后才计算 recall@1、recall@5、MRR。",
+  "items": []
+}

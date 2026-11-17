@@ -1,15 +1,11 @@
-"""建「作品向量索引」——RAG 的检索端。
+"""构建作品混合检索索引。
 
-索引来源：models/works.manifest.json（由前端真实模块导出，不是我手写的假数据）
-图片来源：src/assets/works/*.jpg、src/assets/spirals/*.webp（manifest 里的本地路径）
-向量口径：直接复用 pipeline.serve.build_inputs，保证「训练 / 分类 / 检索」三处预处理完全一致——
-         这是这类项目上线翻车的头号原因，不能在索引脚本里另写一份 resize。
-
-用法（cwd 必须是 ai-classifier）：
+用法（cwd 为 ``ai-classifier``）：
     .\\.venv\\Scripts\\python.exe tools\\build_works_index.py
-输出：
-    models/works.embed.npz   ids / vecs / files
-    models/works.index.json  条数与维度等元信息
+
+输出 ``models/works.embed.npz``，包含 CLIP 512 维向量、已有 color24、
+manifest 标签和色彩标准化统计。增量作品写入 ``models/works.shards``，
+不会覆盖基索引；见 ``tools/update_work_index.py``。
 """
 from __future__ import annotations
 
@@ -17,6 +13,7 @@ import json
 import os
 import sys
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -25,29 +22,32 @@ PKG = Path(__file__).resolve().parents[1]
 MODEL_DIR = PKG / "models"
 MANIFEST = MODEL_DIR / "works.manifest.json"
 
-# 直接 `python tools/xxx.py` 时 sys.path[0] 是 tools/，包根不在里面
 if str(PKG) not in sys.path:
     sys.path.insert(0, str(PKG))
 
 
-def resolve_local(image_url: str) -> Path | None:
-    """把 manifest 里的前端 URL 落回磁盘路径；远程图（unsplash）不索引。"""
+def resolve_local(image_url: str, item: dict[str, Any] | None = None) -> Path | None:
+    """把 manifest URL 落回磁盘路径，支持下载后的 ``/works`` 外链副本。"""
+    candidates: list[Path] = []
+    if item:
+        for key in ("localPath", "localFile", "cachedPath"):
+            value = item.get(key)
+            if value:
+                candidates.append(Path(str(value)))
     if image_url.startswith("/src/assets/"):
-        path = REPO / image_url.lstrip("/")
-        return path if path.exists() else None
-    if image_url.startswith("/works/"):
-        path = REPO / "public" / image_url.lstrip("/")
-        return path if path.exists() else None
+        candidates.append(REPO / image_url.lstrip("/"))
+    elif image_url.startswith("/works/"):
+        candidates.append(REPO / "public" / image_url.lstrip("/"))
+    for path in candidates:
+        if not path.is_absolute():
+            path = REPO / path
+        if path.exists():
+            return path
     return None
 
 
-def main() -> int:
-    if not MANIFEST.exists():
-        print(f"[x] 缺 {MANIFEST}，先从运行中的前端导出（.review-tmp/works.json）")
-        return 1
-
-    data = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    entries: list[tuple[str, Path]] = []
+def _entries(data: dict[str, Any]) -> tuple[list[tuple[str, Path, dict[str, Any]]], int]:
+    entries: list[tuple[str, Path, dict[str, Any]]] = []
     seen: set[str] = set()
     remote = 0
     for key in ("works", "spiralWorks"):
@@ -56,19 +56,45 @@ def main() -> int:
             if not work_id or work_id in seen:
                 continue
             seen.add(work_id)
-            path = resolve_local(item.get("imageUrl", ""))
+            path = resolve_local(str(item.get("imageUrl", "")), item)
             if path is None:
                 remote += 1
                 continue
-            entries.append((work_id, path))
-    print(f"[i] 唯一作品 {len(seen)}，本地可索引 {len(entries)}，远程跳过 {remote}")
+            entries.append((str(work_id), path, item))
+    return entries, remote
+
+
+def _write_index(ids: list[str], files: list[str], vecs: list[np.ndarray], colors: list[np.ndarray],
+                 tags: list[list[str]], output: Path) -> tuple[np.ndarray, np.ndarray]:
+    mat = np.vstack(vecs).astype(np.float32)
+    color_mat = np.vstack(colors).astype(np.float32)
+    color_mu = color_mat.mean(axis=0).astype(np.float32)
+    color_sigma = color_mat.std(axis=0).astype(np.float32)
+    color_sigma[color_sigma < 1e-4] = 1.0
+    output.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        output,
+        ids=np.array(ids), files=np.array(files), vecs=mat,
+        color24=color_mat,
+        tags_json=np.array([json.dumps(item, ensure_ascii=False) for item in tags]),
+        color_mu=color_mu, color_sigma=color_sigma,
+    )
+    return color_mu, color_sigma
+
+
+def main() -> int:
+    if not MANIFEST.exists():
+        print(f"[x] 缺 {MANIFEST}，先导出真实 manifest")
+        return 1
+    data = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    entries, remote = _entries(data)
+    unique = len({item.get("id") for key in ("works", "spiralWorks") for item in data.get(key, []) if item.get("id")})
+    print(f"[i] 唯一作品 {unique}，本地可索引 {len(entries)}，远程跳过 {remote}")
 
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
-
     from PIL import Image
-
-    from pipeline.colorfeat import open_rgb
+    from pipeline.colorfeat import FEATURE_NAMES, color_features, open_rgb
     from pipeline.serve import _startup, _state, build_inputs
 
     _startup()
@@ -79,31 +105,45 @@ def main() -> int:
     ids: list[str] = []
     files: list[str] = []
     vecs: list[np.ndarray] = []
-    for index, (work_id, path) in enumerate(entries, 1):
+    colors: list[np.ndarray] = []
+    tags: list[list[str]] = []
+    for index, (work_id, path, item) in enumerate(entries, 1):
         try:
             image = open_rgb(Image.open(path))
             vec = build_inputs(image)[:512]
             ids.append(work_id)
-            files.append(path.name)
+            try:
+                files.append(str(path.resolve().relative_to(REPO)).replace("\\", "/"))
+            except ValueError:
+                files.append(path.name)
             vecs.append(vec)
+            colors.append(color_features(image))
+            tags.append([str(tag) for tag in (item.get("styles") or []) + (item.get("types") or [])])
             print(f"  [{index:02d}/{len(entries)}] {work_id:<12} {path.name}")
-        except Exception as exc:  # noqa: BLE001 单张坏图不该中断整批
+        except Exception as exc:  # noqa: BLE001
             print(f"  [skip] {work_id}: {exc}")
 
     if not ids:
         print("[x] 没有任何可用向量")
         return 3
-
-    mat = np.vstack(vecs).astype(np.float32)
-    np.savez_compressed(MODEL_DIR / "works.embed.npz", ids=np.array(ids), vecs=mat, files=np.array(files))
+    output = MODEL_DIR / "works.embed.npz"
+    color_mu, color_sigma = _write_index(ids, files, vecs, colors, tags, output)
+    # Rebuilding the base starts a clean shard set; stale shards would duplicate ids.
+    shard_dir = MODEL_DIR / "works.shards"
+    if shard_dir.exists():
+        for shard in shard_dir.glob("*.npz"):
+            shard.unlink()
     meta = {
-        "count": len(ids),
-        "dim": int(mat.shape[1]),
+        "format": 2, "count": len(ids), "dim": int(np.vstack(vecs).shape[1]), "colorDim": 24,
         "clipModel": os.environ.get("CLIP_MODEL", "openai/clip-vit-base-patch32"),
-        "source": "models/works.manifest.json",
+        "source": "models/works.manifest.json", "base": output.name, "shards": [],
+        "weights": {"vector": 0.65, "tags": 0.20, "color": 0.15},
+        "colorFeatureNames": FEATURE_NAMES,
+        "colorMu": [round(float(x), 7) for x in color_mu],
+        "colorSigma": [round(float(x), 7) for x in color_sigma],
     }
     (MODEL_DIR / "works.index.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"[ok] 索引 {len(ids)} 条 {mat.shape} -> models/works.embed.npz")
+    print(f"[ok] 索引 {len(ids)} 条 {np.vstack(vecs).shape} -> {output}")
     return 0
 
 
