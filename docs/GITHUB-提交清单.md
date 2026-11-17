@@ -2,7 +2,7 @@
 
 > 基线 `ea0d24b` → HEAD `89e3a37`，11 批提交、共 **167 个文件**（单批明细可用 `git show --stat <hash>` 复查）。
 > 体检口径：无单文件 >50MB；候选零密钥 / 零内网 IP / 零手机号（117 个文本文件全扫）。
-> 远端仓库：`https://github.com/Cyrus-Chang/photo-society-.git`（**尚未配置 remote、尚未 push**）。
+> 远端仓库：`https://github.com/Cyrus-Chang/photo-society-.git`（✅ **2026-11-17 已推送**：516 对象 / 24.08 MiB，`main -> main` 新分支，跟踪 `origin/main`；推送时实际 HEAD 含收尾 commit `26c5718`）。
 
 ## 1. 批次总览
 
@@ -93,3 +93,5 @@ git push -u origin main
 
 > push 前先 `git status --short` 确认剩余 15 项半成品还在工作区（未提交状态不会上传，属正常）。
 > 后续该任务完成后：走 B11 批次提交（styles.css / serve.py 整文件），再普通 `git push` 即可。
+
+**执行记录（2026-11-17）**：首次 push 曾被全局 `url.https://gh-proxy.com/...insteadOf` 规则劫持到镜像站（镜像不受理 push、反复弹凭据窗）。已通过 `git config --global --unset url.https://gh-proxy.com/https://github.com/.insteadOf` 删除规则 + `git remote set-url origin <真实地址>` 修复，随后 push 一次成功。若日后重装镜像加速，需注意该规则会同时劫持 push。
