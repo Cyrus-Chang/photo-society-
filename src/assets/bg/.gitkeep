@@ -1,0 +1,1 @@
+# 页面背景图（约拍/接拍）存放处，由 src/utils/media.ts 的 bgUrl() 读取
