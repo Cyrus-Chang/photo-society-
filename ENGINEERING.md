@@ -178,11 +178,12 @@ src/
 
 | Key | 存储 | 内容 |
 |---|---|---|
-| `paishe.session.v1` | localStorage | 登录态、昵称、角色、MBTI |
-| `paishe.accounts.v1` | localStorage | 手机号 → `{ 昵称, 密码摘要, 时间 }` |
+| `paishe.session.v1` | localStorage | 登录态、昵称、角色、MBTI（读取时把历史昵称「小满」并到 `cyrus`） |
+| `paishe.accounts.v1` | localStorage | 手机号 → `{ 昵称, 密码摘要, 时间 }`；首次调用账号接口时自动补齐内置演示账号（手机号/昵称见 `src/utils/account.ts` 的 `SEED_PHONE` / `SEED_NAME`） |
+| `paishe.accounts.migrated.v1` | localStorage | 一次性昵称迁移标记：旧演示昵称「小满」→ `cyrus` 只改名一次，之后用户自己改的名字不再被覆盖 |
 | `paishe.intro.v1` | sessionStorage | 首页品牌动画「每标签页只播一次」 |
 
-**安全设计**：密码**不存明文**，只存 `SHA-256(手机号::密码::盐串)`；无后端时这是演示级方案，接入服务端后必须换成服务端校验 + 真实盐 + 限流。
+**安全设计**：密码**不存明文**，只存 `SHA-256(手机号::密码::盐串)`；无后端时这是演示级方案，接入服务端后必须换成服务端校验 + 真实盐 + 限流。内置演示账号同样只存摘要，明文口令只在 `account.ts` 里作为「http 非安全上下文」的兜底比对出现，不写进任何本地存储。
 
 ---
 

@@ -11,6 +11,17 @@ npm run dev
 
 如果 Spring Boot API 已启动，可以设置 `VITE_API_BASE_URL` 指向接口前缀（默认 `/api/v1`）。服务层会优先调用后端接口，接口不可用时自动回退到演示数据，保证比赛演示主链路仍然可用。
 
+## 运行环境要求（2026-11-17 实测）
+
+| 项 | 要求 | 说明 |
+|---|---|---|
+| Node | 20+ | 前端 `npm i && npm run dev`（5173） |
+| Python | 3.11 | AI 服务用 `ai-classifier/.venv` |
+| **torch** | **必须是 CUDA 版（2.7.0+cu128）** | ⚠️ 装成 `+cpu` 版时，本地对话模型退化成 **12–20 秒/句**；CUDA 版实测 **0.9–2.0 秒/句**。重建 venv 时先装 CUDA 版 torch，再装其余依赖 |
+| GPU | 8 GB 显存够用 | RTX 5050 Laptop 实测：CLIP + 对话模型同时驻留约 3.3 GB |
+| 模型权重 | **不入库**（3 GB 起） | 仓库只带训练脚本与语料；权重需本地下载或自己训（见下） |
+
+
 ## 已实现页面
 
 - 首页：四屏作品优先发现页（螺旋照片墙 + 平台说明 + 能力亮点 + 邀约入口）
@@ -64,7 +75,8 @@ $env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
 |---|---|---|
 | 首页第 1 屏「把你的现场放进螺旋」→ 弹窗 | `POST /api/v1/ai/classify` | 真图识别：风格 13 类（留一法 0.706）+ 影调 9 条规则；题材 3 类内测不展示 |
 | 弹窗内「生成介绍」 | `POST /api/v1/ai/copywrite` | 分类标签 → 3 个标题 + 简介 + 标签；配 key 走千问/DeepSeek 兼容接口，未配 key 明确返回 `mode=rule` 模板兜底，不伪装模型输出 |
-| `/match` 撮合台 | `POST /api/v1/ai/agent/match` | 一句话需求 → 解析槽位 → 向量检索（44 张作品）→ 查档期 → 候选摄影师 + 理由；返回 `toolTrace` 可展开核对 |
+| `/match` 撮合台 | `POST /api/v1/ai/agent/match` | 一句话需求 → 解析槽位 → 向量检索（53 张作品）→ 查档期 → 候选摄影师 + 理由；返回 `toolTrace` 可展开核对 |
+| `/photographers/:id`「先聊两句」<br>/`/market` 详情「AI 帮我回一句」 | `POST /api/v1/ai/chat/reply` | **本地 Qwen2.5-1.5B-Instruct + LoRA**，三套摄影师人设（话少型 / 话多型 / 谨慎型）；`mode=model` 走模型、`mode=guard` 表示模型编了上下文里没有的数字被拦下并回落模板、`mode=fallback` 表示模型未就绪 |
 | 诊断 | `GET /api/v1/ai/health`、`GET /api/v1/ai/agent/status` | 模型版本、风格留一法准确率、索引条数、LLM 是否已配置 |
 | 安全闸门 | `POST /api/v1/ai/safety/check` | 三档处置：`pass` / `review`（转人工）/ `block`；撮合与文案链路都过这道闸 |
 
@@ -87,6 +99,32 @@ $env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
 
 > 配置真实 LLM：设 `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY`（千问默认 `https://dashscope.aliyuncs.com/compatible-mode/v1` + `qwen-plus`，DeepSeek 换成 `https://api.deepseek.com/v1` + `deepseek-chat` 即可，代码不动）。密钥只给 Python 服务读，前端永远不碰。
 
+## 本地小模型对话（2026-11-16 新增）
+
+- **基座**：`Qwen2.5-1.5B-Instruct`（3 GB，**不入库**）
+- **语料**：`ai-classifier/distill/corpus.jsonl`，360 条人工撰写的约拍对话，三个人设 120/119/121 均衡
+- **训练**：`ai-classifier/pipeline/../distill/train_lora.py`，bf16 LoRA（r=16 / alpha=32），8 GB 显存可跑
+
+```powershell
+# 训练（cwd = 仓库根）
+.\.staging\.venv-train\Scripts\python.exe ai-classifier\distill\train_lora.py
+# 产物：.staging\models\paishe-chat-merged\（合并后的完整模型，约 2.96 GB）
+```
+
+```powershell
+# 带模型启动 AI 服务
+$env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
+$env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
+cd ai-classifier
+.\.venv\Scripts\python.exe -m uvicorn pipeline.serve:app --host 127.0.0.1 --port 8100
+```
+
+**数字守卫（`mode=guard`）**：小样本模型会编价格，所以回复里出现 `¥数字` / `数字+元|块|起|张|人|小时|天` / 3–4 位裸数字时，只要在 context 里找不到出处，整条回复作废、回落到人设模板，并在响应里标 `guard: [...]`。前端据此显示「已拦下模型编的数字」。
+
+> 实验记录（如实写）：360 条 × 5 epoch 那版 **验证 loss 4.44**、严重过拟合、会给出「480 起是含化妆的」这类编造，**判定不合格已回滚**；线上使用的是 90 条 × 8 epoch 那版。
+
+
+
 ## AI 安全（不是词表堆砌，按真实风险面设计）
 
 摄影约拍平台的真实风险不是"涉政涉黄"，而是：**偷拍 / 隐私**、**绕过平台私下交易**、**Prompt 注入**、**输出泄漏联系方式**。处置分三档，全部可解释：
@@ -101,19 +139,25 @@ $env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
 
 ## MCP 接入（工具集成）
 
-`ai-classifier/mcp_server.py` 零依赖（只用标准库）的 stdio MCP server，暴露三个工具：
+`ai-classifier/mcp_server.py` 零依赖（只用标准库）的 stdio MCP server，暴露三个工具、两个只读资源和一个提示模板：
 
 - `match_photographers(text, topN)` — 一句话撮合
-- `search_works(text)` — 作品向量检索
-- `safety_check(text)` — 复用同一套安全规则
+- `search_works(text, k, weights, tags, city)` — 作品向量检索
+- `safety_check(text, confidence)` — 复用同一套安全规则
+- 资源 `photo://works/index`、`photo://models/metrics`
+- 提示 `find_photographers(query)` — 预置“帮我找摄影师”模板
 
-它**不重复实现模型逻辑**，只做协议适配并转发到 `AI_SERVICE_URL`（默认 8100），部署时两层可各自缩放。客户端把 command 指向 `.venv\Scripts\python.exe` + 该文件即可。
+它**不重复实现模型逻辑**，只做协议适配并转发到 `AI_SERVICE_URL`（默认 8100），部署时两层可各自缩放。客户端把 command 指向 `.venv\Scripts\python.exe` + 该文件即可。鉴权（`MCP_AUTH_TOKEN`）和每分钟限流（`MCP_RATE_LIMIT_PER_MINUTE`）默认关闭，坏 JSON、超大参数和上游超时会逐条返回稳定错误而不会让进程退出。完整配置、错误码、完整 `tools/list` 和客户端代码见 [`ai-classifier/docs/MCP.md`](ai-classifier/docs/MCP.md)。
 
 ## 模型指标的诚实口径
 - **风格（13 类 · 锚图原型匹配）**：留一法准确率 **0.706**，同批图零样本 **0.331**，随机基线 0.077。风格属于分布外概念，文本 prompt 覆盖不到，必须靠参考图——这是本项目最可讲的一个数字。
 - **题材（3 类 · 冻结 CLIP + 线性头）**：`val macro-F1 0.9881 / test 1.0000`，但**只有建筑 / 风景 / 美食三类**，且测试集存在同 query 近邻跨集，该数字是上限；对人像会误判，**不在界面暴露，标注「内测中」**。
 - **影调（9 条色彩规则）**：无监督、零标注，不报准确率，只讲可解释。
 
-## 现状口径（2026-11-15 第四轮冻结后）
+## 现状口径（2026-11-17 更新）
 
-「已实现页面」中首页第 1 条的旧描述「地点 / 日期 / 场景输入」已不成立——第 4 屏的条件匹配表单已删除，改为单一邀约入口。AI 筛作品页当前仍走静态演示数据；AI 服务接入后会在此更新。
+- 约拍页 `/discover` 已改为**真实向量检索**（不再是静态演示数据）：命中 53 张作品索引，卡片上标「命中标签 / 色彩接近」；检索服务不可用时回落本地关键词并把 `degraded` 透传给界面。
+- `/market` 已改名「接拍」，拆「想被拍的 / 搭子」两个口径；摄影师档期帖不进这页。
+- AI 对话已在两个入口上线（摄影师页「先聊两句」、接拍详情「AI 帮我回一句」），走本地模型 + 数字守卫。
+- 约拍/接拍两页使用整屏背景（雪原星轨 / 星云）+ Canvas 粒子，`prefers-reduced-motion` 下退化为静态帧。
+- 仍有限制（如实标注）：**未配置 LLM API key**，所以 `copywrite` 走 `mode=rule` 模板兜底，不是模型生成；对话模型小样本下仍会编造，靠 `guard` 拦截而非根治。
