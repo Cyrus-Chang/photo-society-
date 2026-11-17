@@ -2,16 +2,45 @@
 
 这是根据 `前端架构与内容优化.md` 与 `后端架构设计.md` 生成的 Vue 3 + TypeScript + Vite 前端 MVP。
 
-## 启动
+## 如何运行
+
+### 1) 前端（5173）
 
 ```bash
 npm install
 npm run dev
 ```
 
-如果 Spring Boot API 已启动，可以设置 `VITE_API_BASE_URL` 指向接口前缀（默认 `/api/v1`）。服务层会优先调用后端接口，接口不可用时自动回退到演示数据，保证比赛演示主链路仍然可用。
+可选：设置 `VITE_API_BASE_URL` 指向业务接口前缀（默认 `/api/v1`）。服务层优先调用后端接口，接口不可用时自动回退到演示数据，保证演示主链路仍然可用。
 
-## 运行环境要求（2026-11-17 实测）
+### 2) AI 服务（8100）
+
+```powershell
+cd ai-classifier
+$env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
+.\.venv\Scripts\python.exe -m uvicorn pipeline.serve:app --host 127.0.0.1 --port 8100
+```
+
+冷启动约 45 秒（torch + CLIP）。内部接口：`POST /v1/classify`、`POST /v1/classify-base64`、`POST /v1/embed`、`GET /v1/health`、`GET /v1/models`。
+
+> ⚠️ `ai-classifier/.venv` 里的 torch **必须是 CUDA 版（2.7.0+cu128）**：装成 CPU 版不会报错，但本地对话会退化成 12–20 秒/句；CUDA 版实测 0.9–2.0 秒/句。重建 venv 时**先装 CUDA 版 torch**，再装其余依赖。
+
+### 3) 对话模型（本地 LoRA，仓库不含权重）
+
+仓库里**不含**模型权重（约 3 GB），需自行训练：
+
+```powershell
+# 训练（cwd = 仓库根；约 4–5 分钟，8 GB 显存够用）
+.\.staging\.venv-train\Scripts\python.exe ai-classifier\distill\train_lora.py
+# 产物：.staging\models\paishe-chat-merged\（合并后的完整模型，约 2.96 GB）
+
+# 启动 AI 服务前指向产物
+$env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
+```
+
+> 实验记录：360 条 × 5 epoch 那版验证 loss 4.44、会编价格，判定不合格已回滚；线上使用 90 条 × 8 epoch 那版。
+
+### 运行环境要求（2026-11-17 实测）
 
 | 项 | 要求 | 说明 |
 |---|---|---|
@@ -51,21 +80,9 @@ npm run dev
 |---|---|---|
 | `VITE_API_BASE_URL` | 前端业务接口前缀，默认 `/api/v1` | 前端（构建期注入） |
 | `AI_SERVICE_URL` | AI 模型服务地址，默认 `http://127.0.0.1:8100` | 前端 / BFF |
-| `LLM_BASE_URL` | LLM 兼容接口地址，如千问 `https://dashscope.aliyuncs.com/compatible-mode/v1` | **仅 AI 服务读取** |
-| `LLM_MODEL` | 模型名，如 `qwen-plus` / `deepseek-chat` | 仅 AI 服务读取 |
-| `LLM_API_KEY` | 大模型密钥 | **仅 AI 服务读取，绝不注入前端** |
+| `CHAT_MODEL_DIR` | 本地对话模型目录，指向 `.staging\models\paishe-chat-merged` | 仅 AI 服务读取 |
 
-> ⚠️ 不要把 `LLM_API_KEY` 写成 `VITE_` 前缀：`VITE_*` 会在构建期打进前端产物，等于把密钥发给所有访问者。前端只允许出现不含密钥的 `VITE_API_BASE_URL`。
-
-## AI 服务（`ai-classifier/`）
-
-```powershell
-cd ai-classifier
-$env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
-.\.venv\Scripts\python.exe -m uvicorn pipeline.serve:app --host 127.0.0.1 --port 8100
-```
-
-冷启动约 45 秒（torch + CLIP）。内部接口：`POST /v1/classify`、`POST /v1/classify-base64`、`POST /v1/embed`、`GET /v1/health`、`GET /v1/models`。
+> 项目**未接入大模型 API**：文案生成走 `serve.py` 的模板兜底（`mode=rule`），对话走本地 LoRA 模型。不存在任何外部 LLM 密钥。
 
 ## AI 能力（前端真实调用，不是占位）
 
@@ -74,10 +91,12 @@ $env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
 | 前端入口 | 接口 | 说明 |
 |---|---|---|
 | 首页第 1 屏「把你的现场放进螺旋」→ 弹窗 | `POST /api/v1/ai/classify` | 真图识别：风格 13 类（留一法 0.706）+ 影调 9 条规则；题材 3 类内测不展示 |
-| 弹窗内「生成介绍」 | `POST /api/v1/ai/copywrite` | 分类标签 → 3 个标题 + 简介 + 标签；配 key 走千问/DeepSeek 兼容接口，未配 key 明确返回 `mode=rule` 模板兜底，不伪装模型输出 |
+| 弹窗内「生成介绍」 | `POST /api/v1/ai/copywrite` | 分类标签 → 3 个标题 + 简介 + 标签；**未接入大模型 API**，固定返回 `mode=rule` 模板兜底，不伪装模型输出 |
 | `/match` 撮合台 | `POST /api/v1/ai/agent/match` | 一句话需求 → 解析槽位 → 向量检索（53 张作品）→ 查档期 → 候选摄影师 + 理由；返回 `toolTrace` 可展开核对 |
-| `/photographers/:id`「先聊两句」<br>/`/market` 详情「AI 帮我回一句」 | `POST /api/v1/ai/chat/reply` | **本地 Qwen2.5-1.5B-Instruct + LoRA**，三套摄影师人设（话少型 / 话多型 / 谨慎型）；`mode=model` 走模型、`mode=guard` 表示模型编了上下文里没有的数字被拦下并回落模板、`mode=fallback` 表示模型未就绪 |
-| 诊断 | `GET /api/v1/ai/health`、`GET /api/v1/ai/agent/status` | 模型版本、风格留一法准确率、索引条数、LLM 是否已配置 |
+| `/photographers/:id`「先聊两句」<br>/`/market` 详情「AI 帮我回一句」 | `POST /api/v1/ai/chat/reply` | **本地 Qwen2.5-1.5B-Instruct + LoRA**，三套摄影师人设（话少型 / 话多型 / 谨慎型）；`mode=model` 走模型（GPU 热推理约 2 秒/句）、`mode=guard` 表示模型编了上下文里没有的数字被拦下并回落模板、`mode=fallback` 表示模型未就绪 |
+| 作品详情「同风格」/ 以图搜摄影师 | `POST /api/v1/ai/similar` | 向量检索约 50 张作品索引（当前 53 张），相似作品顺藤摸瓜找到对应摄影师 |
+| 作品查重审计 | `GET /api/v1/works/audit` | 作品重复度审计面板（WorkAuditPanel），给出重复/近重复报告 |
+| 诊断 | `GET /api/v1/ai/health`、`GET /api/v1/ai/agent/status` | 模型版本、风格留一法准确率、索引条数 |
 | 安全闸门 | `POST /api/v1/ai/safety/check` | 三档处置：`pass` / `review`（转人工）/ `block`；撮合与文案链路都过这道闸 |
 
 实测（无头 Edge + CDP，非估算）：
@@ -97,31 +116,15 @@ $env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
 
 > 评测口径写在这里，是为了避免"我们自己说好"——任何人都能复跑 `tools/eval_agent.py` 得到同一组数字。
 
-> 配置真实 LLM：设 `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY`（千问默认 `https://dashscope.aliyuncs.com/compatible-mode/v1` + `qwen-plus`，DeepSeek 换成 `https://api.deepseek.com/v1` + `deepseek-chat` 即可，代码不动）。密钥只给 Python 服务读，前端永远不碰。
-
 ## 本地小模型对话（2026-11-16 新增）
 
-- **基座**：`Qwen2.5-1.5B-Instruct`（3 GB，**不入库**）
-- **语料**：`ai-classifier/distill/corpus.jsonl`，360 条人工撰写的约拍对话，三个人设 120/119/121 均衡
-- **训练**：`ai-classifier/pipeline/../distill/train_lora.py`，bf16 LoRA（r=16 / alpha=32），8 GB 显存可跑
-
-```powershell
-# 训练（cwd = 仓库根）
-.\.staging\.venv-train\Scripts\python.exe ai-classifier\distill\train_lora.py
-# 产物：.staging\models\paishe-chat-merged\（合并后的完整模型，约 2.96 GB）
-```
-
-```powershell
-# 带模型启动 AI 服务
-$env:HF_HUB_OFFLINE="1"; $env:TRANSFORMERS_OFFLINE="1"
-$env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
-cd ai-classifier
-.\.venv\Scripts\python.exe -m uvicorn pipeline.serve:app --host 127.0.0.1 --port 8100
-```
+- **基座**：`Qwen2.5-1.5B-Instruct` + LoRA 微调（r=16 / alpha=32），GPU 热推理约 2 秒/句
+- **语料**：`ai-classifier/distill/corpus.jsonl`，人工撰写的约拍对话（三个人设均衡）
+- **训练与启动**：见上文「如何运行」第 3 段
 
 **数字守卫（`mode=guard`）**：小样本模型会编价格，所以回复里出现 `¥数字` / `数字+元|块|起|张|人|小时|天` / 3–4 位裸数字时，只要在 context 里找不到出处，整条回复作废、回落到人设模板，并在响应里标 `guard: [...]`。前端据此显示「已拦下模型编的数字」。
 
-> 实验记录（如实写）：360 条 × 5 epoch 那版 **验证 loss 4.44**、严重过拟合、会给出「480 起是含化妆的」这类编造，**判定不合格已回滚**；线上使用的是 90 条 × 8 epoch 那版。
+> 守卫只是把编造拦下来，**不等于对话不产生幻觉**——小样本模型仍会编细节（英文混入、编档期），演示时只问训过的场景（问价 / 档期 / 风格 / 地点 / 收尾）。
 
 
 

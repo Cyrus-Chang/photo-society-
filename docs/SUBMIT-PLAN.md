@@ -3,6 +3,10 @@
 > 目标：把 `ea0d24b` 之后的未提交改动拆成可回滚的批次，**先本地提交、暂不推送**。
 > 任何人执行前先跑 `git status --short` 确认没有新变动掺进来。
 
+> ✅ **执行状态（2026-11-17 15:10）**：B0–B10 已全部提交完成（`16b4091` → `89e3a37`，共 167 个文件），
+> 与本计划批次一一对应。逐批文件明细见 [GITHUB-提交清单.md](GITHUB-提交清单.md)。
+> 剩余 15 项未提交改动是「约拍/接拍业务后端」任务的**进行中半成品**，见文末第 5 节，**不要混入推送**。
+
 ## 0. 现状（2026-11-17 实测）
 
 - HEAD `ea0d24b`，分支 `main`，**没有配置 remote**。
@@ -36,6 +40,8 @@
 
 > `src/styles.css` 是多轮追加栈（修正层 A–O），只能整文件放一批，不要拆。
 
+**实际提交哈希对照**：B0=`16b4091`、B1=`32a561e`、B2=`c8ff8a8`、B3=`374766b`、B4=`9d10ccd`、B5=`5bef2d5`、B6=`575a5a7`、B7=`e4adcc2`、B8=`1473d8b`、B9=`4dd42a7`、B10=`89e3a37`。
+
 ## 3. 明确不入库
 
 | 项 | 原因 |
@@ -53,3 +59,18 @@ git remote add origin <你的仓库地址>
 git branch -M main
 git push -u origin main
 ```
+
+## 5. 剩余未提交（2026-11-17 15:10 快照，进行中任务，暂不提交）
+
+「约拍/接拍业务后端」任务（§3.8 P0）开工产生的半成品，等该任务完成后按 B11 批次提交：
+
+- 新文件：`ai-classifier/pipeline/business.py`（约拍/接拍业务后端）、`src/data/photographer-availability.json`（档期真源）、`ai-classifier/models/works.index.json` / `works.manifest.json` / `works.shards/*`（重建索引产物）
+- 修改：`ai-classifier/pipeline/serve.py`、`src/components/ChatSheet.vue`、`src/pages/{Discover,Home,Market}Page.vue`、`src/services/api.ts`、`src/data/mock.ts`、`src/types.ts`、`src/utils/media.ts`、`src/styles.css`
+
+⚠️ `src/styles.css` 与 `serve.py` 又被追加了新改动，下次提交仍须整文件放进同一批，避免和 B8/B1 的历史割裂。
+
+## 6. 收尾记录（2026-11-17 15:10）
+
+- README 二次修订：删除「接入大模型 API」相关表述（LLM_* 环境变量表、配置真实 LLM 段），「如何运行」重排为三段（前端 / AI 服务+CUDA 警告 / 对话模型+实验记录），AI 能力表补「以图搜摄影师、作品查重审计」，明确「守卫 ≠ 无幻觉」。
+- 新增 `docs/GITHUB-提交清单.md`（交付物：逐批清单 + 不入库原因 + push 命令）。
+- 根目录 51 个 pip 临时目录已物理删除（约 87.8 MB）。
