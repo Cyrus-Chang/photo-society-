@@ -1,0 +1,8 @@
+interface:
+  display_name: "Design Frontend Page"
+  short_description: "设计、实现并目视验收前端页面"
+  brand_color: "#e98b6b"
+  default_prompt: "Use $design-frontend-page to design and implement this frontend page with a brief, token plan, one signature effect, and screenshot-based acceptance."
+
+policy:
+  allow_implicit_invocation: true
