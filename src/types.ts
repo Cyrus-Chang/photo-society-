@@ -17,6 +17,8 @@ export interface WorkCard {
   shootDate: string
   canBook: boolean
   matchReason?: string
+  /** 真接口检索分数，仅用于命中结果补齐排序；本地 mock 不依赖此字段。 */
+  score?: number
   accent?: string
   /** 作者自己写的详细介绍；没写时页面用统一占位文案，不代为编造 */
   story?: string
@@ -78,9 +80,13 @@ export interface DiscoverQuery {
 
 export interface FilterPayload {
   date: string
+  /** 拍摄时段：清晨 / 上午 / 午后 / 黄昏 / 夜晚 */
+  slot: string
   city: string
   address: string
-  budget: number
+  /** 预算下限，最低 0（2026-11-15 从单值预算改成双轨区间） */
+  budgetMin: number
+  budgetMax: number
   type: string
   styles: string[]
   ai: boolean

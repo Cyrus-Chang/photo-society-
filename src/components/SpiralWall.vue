@@ -54,6 +54,11 @@ const cardEls: HTMLElement[] = []
 const isSelected = computed(() => Boolean(selected.value))
 
 let W = 0, H = 0, cardW = 0, cardH = 0, pitch = 0, radius = 0, depth = 0, loop = 0
+/* 槽位数：环路长度 loop = slots * pitch，卡片按 slots 环绕。
+   2026-11-16 实测：items 28 张而 GEO.count 固定 16 时，index 与 index+16 会算到
+   完全相同的坐标（实测 12 组重合、24 张卡挤在 12 个位置），前 12 张被后 12 张盖住。
+   改成跟随 items 长度，每张卡各占一格；GEO.count 只作为空数组时的兜底。 */
+let slots = GEO.count
 let progress = 0
 let raf = 0
 let lastNow = 0
@@ -89,9 +94,10 @@ function measure() {
   cardW = W * GEO.cardW
   cardH = cardW * GEO.aspect
   pitch = H * GEO.pitch
+  slots = Math.max(2, props.items.length || GEO.count)
   radius = W * GEO.radius
   depth = W * GEO.depth
-  loop = GEO.count * pitch
+  loop = slots * pitch
   scene.style.perspective = `${(W * GEO.persp).toFixed(1)}px`
   // 舞台中心与整页中心的垂直差：介绍态要把大图对到「整页居中」，而不是对到舞台中心
   const offsetY = rect.top + H / 2 - window.innerHeight / 2
@@ -165,7 +171,7 @@ function tick(now: number) {
     } else {
       if (glide !== 0) {
         glide = 0
-        snapTo = Math.round(progress * GEO.count) / GEO.count
+        snapTo = Math.round(progress * slots) / slots
       } else if (!reduced && !isSelected.value) {
         progress += dt * GEO.drift
       }
@@ -233,7 +239,7 @@ function onPointerUp(event: PointerEvent) {
   if (!dragging) return
   dragging = false
   if (moved >= 8) {
-    snapTo = Math.round(progress * GEO.count) / GEO.count
+    snapTo = Math.round(progress * slots) / slots
   }
 }
 

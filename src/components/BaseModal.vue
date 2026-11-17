@@ -5,7 +5,7 @@ const props = withDefaults(defineProps<{
   open: boolean
   labelledBy?: string
   closeOnBackdrop?: boolean
-  size?: 'md' | 'lg'
+  size?: 'md' | 'lg' | 'xl'
 }>(), {
   closeOnBackdrop: true,
   size: 'md'
@@ -25,8 +25,9 @@ async function openModal() {
   lastFocus = document.activeElement as HTMLElement | null
   document.body.classList.add('has-modal')
   await nextTick()
-  const list = focusables()
-  ;(list[0] ?? panel.value)?.focus()
+  // 焦点先落在弹窗容器（tabindex=-1）而不是第一个控件：
+  // 避免直接聚焦「其他日期」这类次级按钮，Tab 再进入表单。
+  panel.value?.focus()
 }
 
 function closeModal() {
@@ -56,7 +57,11 @@ function onBackdrop() {
   if (props.closeOnBackdrop) emit('close')
 }
 
-onMounted(() => window.addEventListener('keydown', onKeydown))
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+  // 带 ?filter=1 直接打开时 watch 不会触发，挂载时也要把焦点送进弹窗
+  if (props.open) void openModal()
+})
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKeydown)
   document.body.classList.remove('has-modal')
@@ -96,6 +101,8 @@ onBeforeUnmount(() => {
   outline: none;
 }
 .p-modal-panel.is-lg { width: min(760px, 100%); }
+/* 筛选弹窗的两栏（条件 + 风格泡泡）需要更宽；只加档位，不动 md / lg 的既有宽度 */
+.p-modal-panel.is-xl { width: min(1000px, 100%); max-height: min(92vh, 900px); padding: 32px 34px; }
 .p-modal-enter-active, .p-modal-leave-active { transition: opacity .28s cubic-bezier(.2, .8, .2, 1); }
 .p-modal-enter-active .p-modal-panel, .p-modal-leave-active .p-modal-panel { transition: transform .34s cubic-bezier(.2, .8, .2, 1), opacity .28s ease; }
 .p-modal-enter-from, .p-modal-leave-to { opacity: 0; }
