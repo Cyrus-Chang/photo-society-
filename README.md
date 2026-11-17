@@ -5,8 +5,8 @@
 定位是「以摄影社区为主、接单是其中一环」，所以首页是作品发现（螺旋照片墙），而不是交易列表。AI 不是外挂文案，而是嵌在检索、撮合、对话三条主链路上，并且每一步都能在界面上核对（撮合返回 `toolTrace`，对话返回 `mode` 与 `guard` 字段）。
 
 - 前端：Vue 3 + TypeScript + Vite，页面 12 个，深浅色摄影档案视觉
-- AI 服务：独立 FastAPI 进程（8100），CLIP 图像向量 + 锚图风格匹配 + 本地 LoRA 对话
-- 全部模型本地推理，**不依赖任何外部大模型 API**
+- AI 服务：独立 FastAPI 进程（8100），CLIP 图像向量 + 锚图风格匹配；文本侧按部署形态可选：云端千问（配 `LLM_API_KEY`）/ 本地 Qwen2.5-1.5B + LoRA（需 peft 与 GPU，仅开发机）/ 模板兜底
+- 视觉侧（CLIP 分类、锚图风格匹配、向量检索）始终本地推理；文本侧切换规则见下文「[部署形态与能力边界](#部署形态与能力边界)」
 
 ## 技术架构
 
@@ -41,7 +41,7 @@
 | 图像理解 | CLIP（`clip-vit-base-patch32`） | 图像向量用于检索与相似作品；风格走 13 类**锚图原型匹配**（留一法 0.706），影调走 9 条可解释色彩规则 |
 | 检索 | numpy 余弦 + `models/works.embed.npz` 分片 | 索引与清单落盘在 `ai-classifier/models/`，不依赖 FAISS，便于交付复现 |
 | 撮合 Agent | 槽位解析 → 向量检索 → 档期过滤 → 排序 | 纯规则 + 检索，不调外部 LLM；返回 `toolTrace` 供前端展开核对 |
-| 对话 | Qwen2.5-1.5B-Instruct + LoRA（peft，r=16 / alpha=32） | 三个摄影师人设；GPU 热推理约 2 秒/句；权重不入库 |
+| 对话 | 云端千问（`LLM_API_KEY`）/ 本地 Qwen2.5-1.5B-Instruct + LoRA（peft，r=16 / alpha=32） | 按部署形态选择。本地 LoRA 需 peft + GPU 权重（三个人设，GPU 热推理约 2 秒/句）；公网演示实例为纯 CPU 且未装 peft，对话走 fallback，不宣称线上在跑本地模型 |
 | 对话守卫 | 数字守卫（`mode=guard`） | 回复里出现的价格/张数若在上下文中无出处，整条作废并回落人设模板 |
 | 安全 | `config/safety.json` + 三档处置 | `pass / review / block`；安全闸门在检索与模型之前，被拦的需求不进入后续链路 |
 | MCP | `ai-classifier/mcp_server.py` | 仅用标准库的 stdio MCP server，把工具调用转发到 8100 |
@@ -108,6 +108,15 @@ $env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
 | GPU | 8 GB 显存够用 | RTX 5050 Laptop 实测：CLIP + 对话模型同时驻留约 3.3 GB |
 | 模型权重 | **不入库**（3 GB 起） | 仓库只带训练脚本与语料；权重需本地下载或自己训（见下） |
 
+## 部署形态与能力边界
+
+| 形态 | 视觉侧 | 文本侧（文案 / 对话） |
+|---|---|---|
+| 演示部署（2C4G CPU，公网 8080） | 本地推理：CLIP + `models/style.anchors.npz` + numpy 向量检索 | 文案走云端千问（配 `LLM_API_KEY`，`mode=llm`）；对话 fallback |
+| 开发机（Windows + CUDA torch） | 同上 | 可跑本地 Qwen2.5-1.5B + LoRA 对话（`mode=model`） |
+| 无密钥环境 | 同上 | 文案与撮合回落规则（`mode=rule`），接口与前端如实显示 |
+
+
 
 ## 已实现页面
 
@@ -141,10 +150,11 @@ $env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
 | `CHAT_MODEL_DIR` | 本地对话模型目录，指向 `.staging\models\paishe-chat-merged` | 仅 AI 服务读取 |
 | `HF_HUB_OFFLINE` / `TRANSFORMERS_OFFLINE` | 置 `1` 时只用本地缓存的 CLIP 权重 | AI 服务 |
 | `CHAT_DEVICE` / `CHAT_TEMPERATURE` | 对话推理设备与采样温度（当前 `cuda` / `0.7`） | AI 服务 |
+| `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL` | 文本侧云端千问（DashScope 兼容接口）的密钥 / 地址 / 模型名，默认地址 `https://dashscope.aliyuncs.com/compatible-mode/v1`、默认模型 `qwen-plus`；留空走模板兜底 | AI 服务 |
 
 完整模板见仓库根目录 [`.env.example`](.env.example)：复制为 `.env`（或按需导出），不填任何真实密钥也能跑起来。
 
-> 项目**未接入大模型 API**：文案生成走 `serve.py` 的模板兜底（`mode=rule`），对话走本地 LoRA 模型。不存在任何外部 LLM 密钥。
+> 文本侧未配 `LLM_API_KEY` 时走模板兜底（`mode=rule`）；配置后走千问兼容接口（`mode=llm`）；本地 LoRA 仅在开发机可用（`mode=model`）。`llmConfigured` 只表示环境变量非空，不表示密钥有效，密钥有效性以实际调用为准。
 
 ## AI 能力（前端真实调用，不是占位）
 
@@ -153,9 +163,9 @@ $env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
 | 前端入口 | 接口 | 说明 |
 |---|---|---|
 | 首页第 1 屏「把你的现场放进螺旋」→ 弹窗 | `POST /api/v1/ai/classify` | 真图识别：风格 13 类（留一法 0.706）+ 影调 9 条规则；题材 3 类内测不展示 |
-| 弹窗内「生成介绍」 | `POST /api/v1/ai/copywrite` | 分类标签 → 3 个标题 + 简介 + 标签；**未接入大模型 API**，固定返回 `mode=rule` 模板兜底，不伪装模型输出 |
+| 弹窗内「生成介绍」 | `POST /api/v1/ai/copywrite` | 分类标签 → 3 个标题 + 简介 + 标签；配 `LLM_API_KEY` 走千问兼容接口（`mode=llm`），未配则 `mode=rule` 模板兜底，不伪装模型输出 |
 | `/match` 撮合台 | `POST /api/v1/ai/agent/match` | 一句话需求 → 解析槽位 → 向量检索（53 张作品）→ 查档期 → 候选摄影师 + 理由；返回 `toolTrace` 可展开核对 |
-| `/photographers/:id`「先聊两句」<br>/`/market` 详情「AI 帮我回一句」 | `POST /api/v1/ai/chat/reply` | **本地 Qwen2.5-1.5B-Instruct + LoRA**，三套摄影师人设（话少型 / 话多型 / 谨慎型）；`mode=model` 走模型（GPU 热推理约 2 秒/句）、`mode=guard` 表示模型编了上下文里没有的数字被拦下并回落模板、`mode=fallback` 表示模型未就绪 |
+| `/photographers/:id`「先聊两句」<br>/`/market` 详情「AI 帮我回一句」 | `POST /api/v1/ai/chat/reply` | **本地 Qwen2.5-1.5B-Instruct + LoRA**，三套摄影师人设（话少型 / 话多型 / 谨慎型）；`mode=model` 走模型（GPU 热推理约 2 秒/句）、`mode=guard` 表示模型编了上下文里没有的数字被拦下并回落模板、`mode=fallback` 表示模型未就绪（公网演示实例为纯 CPU、未装 peft，走的就是 `fallback`） |
 | 作品详情「同风格」/ 以图搜摄影师 | `POST /api/v1/ai/similar` | 向量检索约 50 张作品索引（当前 53 张），相似作品顺藤摸瓜找到对应摄影师 |
 | 作品查重审计 | `GET /api/v1/works/audit` | 作品重复度审计面板（WorkAuditPanel），给出重复/近重复报告 |
 | 诊断 | `GET /api/v1/ai/health`、`GET /api/v1/ai/agent/status` | 模型版本、风格留一法准确率、索引条数 |
@@ -183,6 +193,7 @@ $env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
 - **基座**：`Qwen2.5-1.5B-Instruct` + LoRA 微调（r=16 / alpha=32），GPU 热推理约 2 秒/句
 - **语料**：`ai-classifier/distill/corpus.jsonl`，人工撰写的约拍对话（三个人设均衡）
 - **训练与启动**：见上文「如何运行」第 3 段
+- **边界**：本地 LoRA 需 peft + GPU 权重；公网演示实例为纯 CPU 且未装 peft，对话走 fallback，不宣称线上在跑本地模型
 
 **数字守卫（`mode=guard`）**：小样本模型会编价格，所以回复里出现 `¥数字` / `数字+元|块|起|张|人|小时|天` / 3–4 位裸数字时，只要在 context 里找不到出处，整条回复作废、回落到人设模板，并在响应里标 `guard: [...]`。前端据此显示「已拦下模型编的数字」。
 
@@ -223,9 +234,9 @@ $env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
 
 - 约拍页 `/discover` 已改为**真实向量检索**（不再是静态演示数据）：命中 53 张作品索引，卡片上标「命中标签 / 色彩接近」；检索服务不可用时回落本地关键词并把 `degraded` 透传给界面。
 - `/market` 已改名「接拍」，拆「想被拍的 / 搭子」两个口径；摄影师档期帖不进这页。
-- AI 对话已在两个入口上线（摄影师页「先聊两句」、接拍详情「AI 帮我回一句」），走本地模型 + 数字守卫。
+- AI 对话已在两个入口上线（摄影师页「先聊两句」、接拍详情「AI 帮我回一句」）：开发机走本地模型（`mode=model`），公网演示实例未装 peft 走 `mode=fallback`，两条路径都过数字守卫。
 - 约拍/接拍两页使用整屏背景（雪原星轨 / 星云）+ Canvas 粒子，`prefers-reduced-motion` 下退化为静态帧。
-- 仍有限制（如实标注）：**未配置 LLM API key**，所以 `copywrite` 走 `mode=rule` 模板兜底，不是模型生成；对话模型小样本下仍会编造，靠 `guard` 拦截而非根治。
+- 仍有限制（如实标注）：公网演示实例已配 `LLM_API_KEY`（`GET /api/v1/ai/agent/status` 自报 `llmConfigured=true`、`llmModel=qwen-plus`），文案走 `mode=llm`；不配 key 的环境回落 `mode=rule` 模板兜底，不是模型生成。对话模型小样本下仍会编造，靠 `guard` 拦截而非根治。
 
 ## 团队信息
 
