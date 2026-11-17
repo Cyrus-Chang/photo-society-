@@ -1,6 +1,64 @@
-# 拍社 · 摄影师约拍平台
+# 拍社 · PHOTO SOCIETY
 
-这是根据 `前端架构与内容优化.md` 与 `后端架构设计.md` 生成的 Vue 3 + TypeScript + Vite 前端 MVP。
+面向中国城市的摄影师约拍平台。用户用一句话或一张参考图描述想要的画面，平台做**作品向量检索 → 摄影师撮合 → 约拍对话**；摄影师侧可以发档期、接需求、管订单。
+
+定位是「以摄影社区为主、接单是其中一环」，所以首页是作品发现（螺旋照片墙），而不是交易列表。AI 不是外挂文案，而是嵌在检索、撮合、对话三条主链路上，并且每一步都能在界面上核对（撮合返回 `toolTrace`，对话返回 `mode` 与 `guard` 字段）。
+
+- 前端：Vue 3 + TypeScript + Vite，页面 12 个，深浅色摄影档案视觉
+- AI 服务：独立 FastAPI 进程（8100），CLIP 图像向量 + 锚图风格匹配 + 本地 LoRA 对话
+- 全部模型本地推理，**不依赖任何外部大模型 API**
+
+## 技术架构
+
+```
+┌──────────────────────────────┐
+│ 浏览器 / Vue 3 SPA (5173)     │
+│  pages · components · api.ts │
+└──────────────┬───────────────┘
+               │ /api/v1/*（Vite 代理）
+┌──────────────▼───────────────┐
+│ AI / BFF 服务 (FastAPI, 8100) │
+│  classify · search · similar  │
+│  agent  · chat  · safety      │
+└──────┬───────────────┬───────┘
+       │               │
+┌──────▼──────┐  ┌─────▼──────────────────┐
+│ CLIP + 分类头│  │ 作品向量索引 (npz 分片) │
+│ 13 类锚图原型│  │ models/works.*          │
+└─────────────┘  └────────────────────────┘
+       │
+┌──────▼────────────────────────┐
+│ Qwen2.5-1.5B-Instruct + LoRA  │
+│ 本地权重，仓库不含            │
+└───────────────────────────────┘
+```
+
+| 层 | 选型 | 说明 |
+|---|---|---|
+| 前端框架 | Vue 3.5 + TypeScript 5.7 + Vite 6 | `vue-router` 4 管路由；无 UI 组件库，样式为原生 CSS（`src/styles.css` 基础层 + 页面 `scoped`） |
+| 前端数据 | `src/services/api.ts` 接口优先 + `src/data/mock.ts` 回落 | 后端不可用时演示主链路仍然可走通，界面透传 `degraded` 标记而不是假装成功 |
+| 服务层 | Python 3.11 + FastAPI + uvicorn | 单进程同时承担模型推理与 `/api/v1` 业务别名路由，不额外起第二个服务 |
+| 图像理解 | CLIP（`clip-vit-base-patch32`） | 图像向量用于检索与相似作品；风格走 13 类**锚图原型匹配**（留一法 0.706），影调走 9 条可解释色彩规则 |
+| 检索 | numpy 余弦 + `models/works.embed.npz` 分片 | 索引与清单落盘在 `ai-classifier/models/`，不依赖 FAISS，便于交付复现 |
+| 撮合 Agent | 槽位解析 → 向量检索 → 档期过滤 → 排序 | 纯规则 + 检索，不调外部 LLM；返回 `toolTrace` 供前端展开核对 |
+| 对话 | Qwen2.5-1.5B-Instruct + LoRA（peft，r=16 / alpha=32） | 三个摄影师人设；GPU 热推理约 2 秒/句；权重不入库 |
+| 对话守卫 | 数字守卫（`mode=guard`） | 回复里出现的价格/张数若在上下文中无出处，整条作废并回落人设模板 |
+| 安全 | `config/safety.json` + 三档处置 | `pass / review / block`；安全闸门在检索与模型之前，被拦的需求不进入后续链路 |
+| MCP | `ai-classifier/mcp_server.py` | 仅用标准库的 stdio MCP server，把工具调用转发到 8100 |
+
+目录约定：
+
+```
+src/                    前端（pages / components / services / data / assets）
+ai-classifier/
+  pipeline/             AI 服务：classify / retrieval / agent / chat / safety / copywrite
+  models/               作品向量索引与清单（入库）
+  labels/ config/       标签字典与安全规则
+  tools/                可复跑评测与测试脚本
+  distill/              LoRA 语料与训练脚本
+  docs/                 AI 侧设计文档与评测口径
+docs/                   提交计划、提交清单等交付文档
+```
 
 ## 如何运行
 
@@ -81,6 +139,10 @@ $env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
 | `VITE_API_BASE_URL` | 前端业务接口前缀，默认 `/api/v1` | 前端（构建期注入） |
 | `AI_SERVICE_URL` | AI 模型服务地址，默认 `http://127.0.0.1:8100` | 前端 / BFF |
 | `CHAT_MODEL_DIR` | 本地对话模型目录，指向 `.staging\models\paishe-chat-merged` | 仅 AI 服务读取 |
+| `HF_HUB_OFFLINE` / `TRANSFORMERS_OFFLINE` | 置 `1` 时只用本地缓存的 CLIP 权重 | AI 服务 |
+| `CHAT_DEVICE` / `CHAT_TEMPERATURE` | 对话推理设备与采样温度（当前 `cuda` / `0.7`） | AI 服务 |
+
+完整模板见仓库根目录 [`.env.example`](.env.example)：复制为 `.env`（或按需导出），不填任何真实密钥也能跑起来。
 
 > 项目**未接入大模型 API**：文案生成走 `serve.py` 的模板兜底（`mode=rule`），对话走本地 LoRA 模型。不存在任何外部 LLM 密钥。
 
@@ -164,3 +226,15 @@ $env:CHAT_MODEL_DIR="<仓库根>\.staging\models\paishe-chat-merged"
 - AI 对话已在两个入口上线（摄影师页「先聊两句」、接拍详情「AI 帮我回一句」），走本地模型 + 数字守卫。
 - 约拍/接拍两页使用整屏背景（雪原星轨 / 星云）+ Canvas 粒子，`prefers-reduced-motion` 下退化为静态帧。
 - 仍有限制（如实标注）：**未配置 LLM API key**，所以 `copywrite` 走 `mode=rule` 模板兜底，不是模型生成；对话模型小样本下仍会编造，靠 `guard` 拦截而非根治。
+
+## 团队信息
+
+| 项 | 内容 |
+|---|---|
+| 队伍 / 项目名称 | 拍社 PHOTO SOCIETY |
+| 参赛赛事 | 传智杯（赛道：待填） |
+| 成员与分工 | 待填：姓名 · 角色（前端 / AI / 设计 / 文档）· 负责模块 |
+| 联系方式 | 待填：队长邮箱或手机 |
+| 仓库地址 | https://github.com/Cyrus-Chang/photo-society- |
+
+> 开发历程可直接看提交历史：`git log --date=short --pretty='%ad %s'`。项目从 2026-11-14 的前端骨架起步，11-15 打通模型服务与撮合 Agent，11-16 训完 LoRA 并接入对话，11-17 完成业务页与仓库交付。

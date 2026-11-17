@@ -1,21 +1,21 @@
-# ===== 依赖与构建产物 =====
+# ===== ä¾èµ–ä¸Žæž„å»ºäº§ç‰© =====
 node_modules/
 dist/
 .vite/
 *.log
 
-# ===== 本地密钥（只走环境变量，绝不入库）=====
+# ===== æœ¬åœ°å¯†é’¥ï¼ˆåªèµ°çŽ¯å¢ƒå˜é‡ï¼Œç»ä¸å…¥åº“ï¼‰=====
 .env
 .env.*
 !.env.example
 
-# ===== Python 运行时（体积大、可重建）=====
+# ===== Python è¿è¡Œæ—¶ï¼ˆä½“ç§¯å¤§ã€å¯é‡å»ºï¼‰=====
 ai-classifier/.venv/
 .venv/
 __pycache__/
 *.pyc
 
-# ===== AI 训练数据与外部数据集（许可不齐，不入库）=====
+# ===== AI è®­ç»ƒæ•°æ®ä¸Žå¤–éƒ¨æ•°æ®é›†ï¼ˆè®¸å¯ä¸é½ï¼Œä¸å…¥åº“ï¼‰=====
 ai-classifier/data/*
 !ai-classifier/data/
 !ai-classifier/data/retrieval_labels.json
@@ -24,30 +24,32 @@ ai-classifier/cache/
 ai-classifier/reports/
 *.parquet
 
-# ===== 非交付物：调试夹具、截图、参考 demo、用户素材、归档 =====
+# ===== éžäº¤ä»˜ç‰©ï¼šè°ƒè¯•å¤¹å…·ã€æˆªå›¾ã€å‚è€ƒ demoã€ç”¨æˆ·ç´ æã€å½’æ¡£ =====
 .spiral-ref/
 .screenshots/
 .review-tmp/
 .trae-html-share-packages/
-素材/
-归档_旧版稿/
+ç´ æ/
+å½’æ¡£_æ—§ç‰ˆç¨¿/
 *.tmp
 .mis.txt
+.styles.txt
+prd_text.txt
 
-# ===== 并行会话的临时脚手架（含 Chrome profile，8k+ 文件，绝不入库）=====
+# ===== å¹¶è¡Œä¼šè¯çš„ä¸´æ—¶è„šæ‰‹æž¶ï¼ˆå« Chrome profileï¼Œ8k+ æ–‡ä»¶ï¼Œç»ä¸å…¥åº“ï¼‰=====
 .staging/
 
-# ===== AI 服务运行日志（每次请求都在长，不入库）=====
+# ===== AI æœåŠ¡è¿è¡Œæ—¥å¿—ï¼ˆæ¯æ¬¡è¯·æ±‚éƒ½åœ¨é•¿ï¼Œä¸å…¥åº“ï¼‰=====
 ai-classifier/logs/
 
-# ===== 系统与编辑器 =====
+# ===== ç³»ç»Ÿä¸Žç¼–è¾‘å™¨ =====
 .DS_Store
 Thumbs.db
 desktop.ini
 .idea/
 .vscode/
 
-# ===== pip 在仓库根目录留下的临时解包目录（2026-11-17 实测 51 个 / 87.8MB）=====
+# ===== pip åœ¨ä»“åº“æ ¹ç›®å½•ç•™ä¸‹çš„ä¸´æ—¶è§£åŒ…ç›®å½•ï¼ˆ2026-11-17 å®žæµ‹ 51 ä¸ª / 87.8MBï¼‰=====
 pip-unpack-*/
 pip-install-*/
 pip-build-tracker-*/
@@ -55,9 +57,13 @@ pip-ephem-wheel-cache-*/
 pip-metadata-*/
 pip-target-*/
 
-# ===== 训练用独立 venv 与模型权重（可重建，体积 3GB 起，绝不入库）=====
-# 注意：不要写成 models/，那会连 ai-classifier/models/ 一起忽略掉（那里是要入库的索引产物）
+# ===== è®­ç»ƒç”¨ç‹¬ç«‹ venv ä¸Žæ¨¡åž‹æƒé‡ï¼ˆå¯é‡å»ºï¼Œä½“ç§¯ 3GB èµ·ï¼Œç»ä¸å…¥åº“ï¼‰=====
+# æ³¨æ„ï¼šä¸è¦å†™æˆ models/ï¼Œé‚£ä¼šè¿ž ai-classifier/models/ ä¸€èµ·å¿½ç•¥æŽ‰ï¼ˆé‚£é‡Œæ˜¯è¦å…¥åº“çš„ç´¢å¼•äº§ç‰©ï¼‰
 .staging/.venv-train/
 *.safetensors
 *.gguf
 
+
+# ²¿Êð°ü£¨tools/pack-deploy.ps1 ²úÎï£¬45MB£¬²»Èë¿â£©
+*.tgz
+*.tgz.sha256

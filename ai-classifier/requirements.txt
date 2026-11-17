@@ -5,8 +5,13 @@ pillow>=10.0
 scikit-learn>=1.3
 
 # CLIP 视觉塔（extract 与 serve 都需要；只调分类头时也必须装，因为推理要现算图像向量）
+# ⚠️ 必须是 CUDA 版 torch（Windows 上 2.7.0+cu128）：装成 +cpu 不会报错，
+#    但本地对话会从 ~2 秒/句 退化到 12–20 秒/句。先装 CUDA torch，再装其余依赖。
 torch>=2.0
 transformers>=4.40
+
+# LoRA 训练（distill/train_lora.py）
+peft>=0.13
 
 # 导出与推理
 onnx>=1.15
