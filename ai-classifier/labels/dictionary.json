@@ -8,9 +8,40 @@
     "note": "改口径只改这里，然后同步 label_dictionary 表。prompt_en 仅用于零样本兜底，训练不用它。enabled=false 的类不在训练范围，prepare.py 会拒绝使用。",
     "style_judgement": "主风格判定顺序：①去色(S_mean<0.04)→MONO ②色相偏移(b*显著为负+暗部冷)→BLUE_TONE / (中间调绿青+暖肤)→HK_RETRO ③影调(暗部抬升+高明度+留白)→INS / (低饱和+高明度+柔光溢光)→JAPANESE / (大面积暗部+单光源)→DARK_MOOD ④质感(颗粒+黑位抬升+青影暖高光)→FILM / (霓虹高饱+青品对冲)→CYBER。落不进去的进 _unlabeled。",
     "subject_judgement": "题材先判『有没有人』，再判人像子类：纯色/布景背景+人工光→STUDIO；真实自然环境+自然光→OUTDOOR；城市街头+人文环境→STREET_PORTRAIT；真实室内空间(咖啡馆/家居)→INTERIOR_PORTRAIT；展馆+摊位/人群/展板→CONVENTION。非人像：带结构线条→ARCHITECTURE；自然景观→LANDSCAPE；单个主体静物或食物→STILL_FOOD。",
-    "budget": "约 450~500 张图。同一批图各标一次题材、一次风格（风格可多标，平均约 1.8 个/张）→ 题材 8 类 × 50 正样本、风格 13 类 × 40 正样本都能凑够。标注 5~6 小时/人，三人分工约 2 小时。"
+    "budget": "约 450~500 张图。同一批图各标一次题材、一次风格（风格可多标，平均约 1.8 个/张）→ 题材 8 类 × 50 正样本、风格 13 类 × 40 正样本都能凑够。标注 5~6 小时/人，三人分工约 2 小时。",
+    "public_subject_codes": [
+      "ARCHITECTURE",
+      "LANDSCAPE",
+      "STILL_FOOD"
+    ],
+    "public_style_codes": [
+      "JAPANESE",
+      "KOREAN",
+      "INS",
+      "FRESH",
+      "FILM",
+      "VINTAGE",
+      "CINEMATIC",
+      "DARK_MOOD",
+      "MONO",
+      "BLUE_TONE",
+      "HK_RETRO",
+      "CYBER",
+      "WESTERN"
+    ],
+    "public_tone_codes": [
+      "TONE_WARM",
+      "TONE_COOL",
+      "TONE_HIGH_SAT",
+      "TONE_LOW_SAT",
+      "TONE_HIGH_CONTRAST",
+      "TONE_LOW_CONTRAST",
+      "TONE_HIGH_KEY",
+      "TONE_LOW_KEY",
+      "TONE_LIFTED_BLACK"
+    ],
+    "subject_gate": "trained non-person head >= 0.78 + CLIP portrait probability mass <= 0.45; otherwise empty subject + needsReview"
   },
-
   "SUBJECT": [
     {
       "code": "STUDIO",
@@ -64,7 +95,12 @@
       "name_en": "Architecture",
       "prompt_en": "an architectural photograph of a building facade or interior structure",
       "definition": "非人像，主体为建筑立面、结构、几何线条、室内空间结构。可以有极小的人物作为尺度参照",
-      "negative_hint": "与 INTERIOR_PORTRAIT 区分：画面中没有人像主体"
+      "negative_hint": "与 INTERIOR_PORTRAIT 区分：画面中没有人像主体",
+      "aliases": [
+        "建筑摄影",
+        "建筑空间"
+      ],
+      "description": "非人像，主体为建筑立面、结构、几何线条、室内空间结构。可以有极小的人物作为尺度参照"
     },
     {
       "code": "LANDSCAPE",
@@ -73,7 +109,12 @@
       "name_en": "Landscape",
       "prompt_en": "a landscape photograph of nature, mountains, sea or sky",
       "definition": "非人像，自然景观为主体：山川、湖海、天空、云、植被、雪景、星空",
-      "negative_hint": "与 OUTDOOR 区分：画面中没有人像主体"
+      "negative_hint": "与 OUTDOOR 区分：画面中没有人像主体",
+      "aliases": [
+        "风景",
+        "自然景观"
+      ],
+      "description": "非人像，自然景观为主体：山川、湖海、天空、云、植被、雪景、星空"
     },
     {
       "code": "STILL_FOOD",
@@ -82,7 +123,13 @@
       "name_en": "Still life & food",
       "prompt_en": "a still life or food photograph of an object or a dish",
       "definition": "非人像，单个/少量主体可控布景：产品、桌面小物、花艺、食物与饮品（探店、菜品、咖啡）",
-      "negative_hint": "与 ARCHITECTURE 区分：主体是独立物件而非空间结构"
+      "negative_hint": "与 ARCHITECTURE 区分：主体是独立物件而非空间结构",
+      "aliases": [
+        "静物",
+        "美食",
+        "产品静物"
+      ],
+      "description": "非人像，单个/少量主体可控布景：产品、桌面小物、花艺、食物与饮品（探店、菜品、咖啡）"
     },
     {
       "code": "PET",
@@ -121,7 +168,6 @@
       "negative_hint": ""
     }
   ],
-
   "STYLE": [
     {
       "code": "BLUE_TONE",
@@ -130,7 +176,12 @@
       "name_en": "Blue tone",
       "prompt_en": "a photograph with a strong blue color cast and cold tone",
       "definition": "整体偏蓝或青蓝：LAB 的 b* 均值为负、暗部明显偏冷、白平衡偏冷。可以是亮的也可以是暗的",
-      "negative_hint": "与 MONO 区分：仍有彩；与 JAPANESE 区分：日系是青绿+高明度，蓝调以蓝相为主且可压暗；与 DARK_MOOD 区分：蓝调是色相偏移，暗调是明度低"
+      "negative_hint": "与 MONO 区分：仍有彩；与 JAPANESE 区分：日系是青绿+高明度，蓝调以蓝相为主且可压暗；与 DARK_MOOD 区分：蓝调是色相偏移，暗调是明度低",
+      "aliases": [
+        "冷蓝",
+        "青蓝"
+      ],
+      "description": "整体偏蓝或青蓝：LAB 的 b* 均值为负、暗部明显偏冷、白平衡偏冷。可以是亮的也可以是暗的"
     },
     {
       "code": "INS",
@@ -139,7 +190,12 @@
       "name_en": "Instagram style",
       "prompt_en": "a clean bright minimal instagram style photograph with negative space",
       "definition": "高亮、低对比、黑位抬升（暗部不死黑）、画面干净留白、轻暖白平衡、构图规整、有几何秩序",
-      "negative_hint": "与 JAPANESE 区分：ins 强调留白与几何，日系强调空气感与柔光；ins 通常更锐更『干净』"
+      "negative_hint": "与 JAPANESE 区分：ins 强调留白与几何，日系强调空气感与柔光；ins 通常更锐更『干净』",
+      "aliases": [
+        "Instagram风",
+        "极简留白"
+      ],
+      "description": "高亮、低对比、黑位抬升（暗部不死黑）、画面干净留白、轻暖白平衡、构图规整、有几何秩序"
     },
     {
       "code": "JAPANESE",
@@ -148,7 +204,12 @@
       "name_en": "Japanese airy",
       "prompt_en": "a soft airy japanese style photograph, low contrast, bright, gentle light",
       "definition": "低饱和、高明度、柔光、轻微高光溢出、带青绿倾向、空气感与通透感",
-      "negative_hint": "与 INS 区分：日系不追求锐利与大面积留白；与 FILM 区分：日系没有明显颗粒"
+      "negative_hint": "与 INS 区分：日系不追求锐利与大面积留白；与 FILM 区分：日系没有明显颗粒",
+      "aliases": [
+        "日系空气感",
+        "日系清透"
+      ],
+      "description": "低饱和、高明度、柔光、轻微高光溢出、带青绿倾向、空气感与通透感"
     },
     {
       "code": "KOREAN",
@@ -157,7 +218,12 @@
       "name_en": "Korean style",
       "prompt_en": "a korean style portrait with creamy skin tones, bright and clean, low contrast",
       "definition": "奶油感：皮肤通透白皙偏粉、浅色调、低对比、黑位轻微抬升、画面干净、锐度中高。多用于棚拍与咖啡馆外景",
-      "negative_hint": "与 JAPANESE 区分：韩系偏粉白且更锐更干净，日系偏青绿且有空气感/灰雾/颗粒；与 INS 区分：韩系更强调人物皮肤质感，ins 更强调留白与几何"
+      "negative_hint": "与 JAPANESE 区分：韩系偏粉白且更锐更干净，日系偏青绿且有空气感/灰雾/颗粒；与 INS 区分：韩系更强调人物皮肤质感，ins 更强调留白与几何",
+      "aliases": [
+        "奶油感",
+        "韩系清透"
+      ],
+      "description": "奶油感：皮肤通透白皙偏粉、浅色调、低对比、黑位轻微抬升、画面干净、锐度中高。多用于棚拍与咖啡馆外景"
     },
     {
       "code": "WESTERN",
@@ -166,7 +232,12 @@
       "name_en": "Western editorial",
       "prompt_en": "a western editorial fashion portrait with strong contrast, hard light and bold shadows",
       "definition": "欧美杂志/时尚 editorial 感：高反差、硬光、强轮廓阴影、暖中性色或冷蓝背景、妆造强烈、姿态张扬",
-      "negative_hint": "与 DARK_MOOD 区分：欧美是高反差（明暗都足），暗调是大面积暗部；与 CINEMATIC 区分：欧美没有统一的青橙调色。★这一类定义最宽，混淆严重时优先拆掉"
+      "negative_hint": "与 DARK_MOOD 区分：欧美是高反差（明暗都足），暗调是大面积暗部；与 CINEMATIC 区分：欧美没有统一的青橙调色。★这一类定义最宽，混淆严重时优先拆掉",
+      "aliases": [
+        "欧美杂志",
+        "时尚杂志"
+      ],
+      "description": "欧美杂志/时尚 editorial 感：高反差、硬光、强轮廓阴影、暖中性色或冷蓝背景、妆造强烈、姿态张扬"
     },
     {
       "code": "CINEMATIC",
@@ -175,7 +246,12 @@
       "name_en": "Cinematic",
       "prompt_en": "a cinematic photograph with teal and orange color grading and soft highlights",
       "definition": "青橙调色（teal & orange）：暗部偏青、高光偏橙、S 形对比曲线、两端不裁切（保留高光与暗部细节）、常有宽画幅构图",
-      "negative_hint": "与 CYBER 区分：赛博是青+品红霓虹，电影感是青+橙；与 WESTERN 区分：电影感有明确的双色对冲调色"
+      "negative_hint": "与 CYBER 区分：赛博是青+品红霓虹，电影感是青+橙；与 WESTERN 区分：电影感有明确的双色对冲调色",
+      "aliases": [
+        "青橙调",
+        "电影调色"
+      ],
+      "description": "青橙调色（teal & orange）：暗部偏青、高光偏橙、S 形对比曲线、两端不裁切（保留高光与暗部细节）、常有宽画幅构图"
     },
     {
       "code": "FRESH",
@@ -184,7 +260,12 @@
       "name_en": "Fresh & airy",
       "prompt_en": "a fresh bright airy photograph with high key light and clean pastel colors",
       "definition": "高明度、低饱和、通透、浅色、阳光感、干净。明度比日系更高、更白亮",
-      "negative_hint": "与 JAPANESE 区分：清新更亮更白，日系有青绿调与灰雾。★两者可共存：多标签下允许同时为真，不必强行二选一"
+      "negative_hint": "与 JAPANESE 区分：清新更亮更白，日系有青绿调与灰雾。★两者可共存：多标签下允许同时为真，不必强行二选一",
+      "aliases": [
+        "明亮清透",
+        "清透"
+      ],
+      "description": "高明度、低饱和、通透、浅色、阳光感、干净。明度比日系更高、更白亮"
     },
     {
       "code": "FILM",
@@ -193,7 +274,12 @@
       "name_en": "Film emulation",
       "prompt_en": "a film emulation photograph with visible grain and faded shadows",
       "definition": "颗粒感明显、黑位抬升、青影暖高光的色彩偏移（交叉冲洗感）、对比柔和、高光有轻微溢出",
-      "negative_hint": "与 JAPANESE 区分：胶片看颗粒与黑位抬升，日系看柔光与通透；与 HK_RETRO 区分：港风的绿青在中间调更重"
+      "negative_hint": "与 JAPANESE 区分：胶片看颗粒与黑位抬升，日系看柔光与通透；与 HK_RETRO 区分：港风的绿青在中间调更重",
+      "aliases": [
+        "胶片感",
+        "颗粒感"
+      ],
+      "description": "颗粒感明显、黑位抬升、青影暖高光的色彩偏移（交叉冲洗感）、对比柔和、高光有轻微溢出"
     },
     {
       "code": "DARK_MOOD",
@@ -202,7 +288,12 @@
       "name_en": "Low key moody",
       "prompt_en": "a moody low key photograph with deep shadows and a single light source",
       "definition": "低调摄影：大面积暗部、单一光源、情绪压抑、明度均值低、阴影占比高",
-      "negative_hint": "与 BLUE_TONE 区分：暗调是明度低（可以是暖的），蓝调是色相偏移（可以是亮的）；与 MONO 区分：可能仍是彩色"
+      "negative_hint": "与 BLUE_TONE 区分：暗调是明度低（可以是暖的），蓝调是色相偏移（可以是亮的）；与 MONO 区分：可能仍是彩色",
+      "aliases": [
+        "低调情绪",
+        "低明度"
+      ],
+      "description": "低调摄影：大面积暗部、单一光源、情绪压抑、明度均值低、阴影占比高"
     },
     {
       "code": "MONO",
@@ -211,7 +302,12 @@
       "name_en": "Black and white",
       "prompt_en": "a black and white photograph",
       "definition": "完全去色，饱和度接近 0，仅灰阶",
-      "negative_hint": "硬规则可判：S_mean < 0.04 直接命中，优先级最高"
+      "negative_hint": "硬规则可判：S_mean < 0.04 直接命中，优先级最高",
+      "aliases": [
+        "单色",
+        "灰阶"
+      ],
+      "description": "完全去色，饱和度接近 0，仅灰阶"
     },
     {
       "code": "HK_RETRO",
@@ -220,7 +316,12 @@
       "name_en": "Hong Kong retro",
       "prompt_en": "a hong kong retro style portrait with greenish midtones and warm skin",
       "definition": "偏绿青的中间调、暖肤色、硬光、年代颗粒、港片式构图与人物姿态",
-      "negative_hint": "与 FILM 区分：港风的绿青集中在中间调且与暖肤色形成对冲，胶片是整体色彩偏移；与 JAPANESE 区分：港风对比更高、人物更强势"
+      "negative_hint": "与 FILM 区分：港风的绿青集中在中间调且与暖肤色形成对冲，胶片是整体色彩偏移；与 JAPANESE 区分：港风对比更高、人物更强势",
+      "aliases": [
+        "港式复古",
+        "港片风"
+      ],
+      "description": "偏绿青的中间调、暖肤色、硬光、年代颗粒、港片式构图与人物姿态"
     },
     {
       "code": "CYBER",
@@ -229,7 +330,12 @@
       "name_en": "Cyberpunk",
       "prompt_en": "a cyberpunk photograph with neon lights in cyan and magenta",
       "definition": "霓虹高饱和、青品对冲、硬光、暗部保留高饱和光斑、夜景/室内霓虹环境",
-      "negative_hint": "与 DARK_MOOD 区分：赛博暗但高饱和，暗调暗且低饱和；与 BLUE_TONE 区分：赛博是多色霓虹对冲，蓝调是单一蓝相"
+      "negative_hint": "与 DARK_MOOD 区分：赛博暗但高饱和，暗调暗且低饱和；与 BLUE_TONE 区分：赛博是多色霓虹对冲，蓝调是单一蓝相",
+      "aliases": [
+        "赛博朋克",
+        "霓虹"
+      ],
+      "description": "霓虹高饱和、青品对冲、硬光、暗部保留高饱和光斑、夜景/室内霓虹环境"
     },
     {
       "code": "VINTAGE",
@@ -238,7 +344,12 @@
       "name_en": "Vintage faded",
       "prompt_en": "a vintage faded photograph with muted colors, yellow-brown cast and a retro feel",
       "definition": "褪色感：整体低饱和、黄褐偏移、对比柔和、色彩记忆感陈旧。常见于老照片放大与胶片扫描仿真",
-      "negative_hint": "与 FILM 区分：复古的核心是色彩年代感（黄褐/褪色），胶片的核心是颗粒与黑位抬升；两者可共存，多标签下允许同时为真；与 CINEMATIC 区分：复古没有青橙对冲"
+      "negative_hint": "与 FILM 区分：复古的核心是色彩年代感（黄褐/褪色），胶片的核心是颗粒与黑位抬升；两者可共存，多标签下允许同时为真；与 CINEMATIC 区分：复古没有青橙对冲",
+      "aliases": [
+        "怀旧",
+        "褪色感"
+      ],
+      "description": "褪色感：整体低饱和、黄褐偏移、对比柔和、色彩记忆感陈旧。常见于老照片放大与胶片扫描仿真"
     },
     {
       "code": "LOW_SAT",
@@ -250,34 +361,175 @@
       "negative_hint": "与 MONO 区分：仍保留可辨识的色彩倾向"
     }
   ],
-
   "TONE": [
-    {"code": "TONE_WARM", "name_cn": "暖调", "rule": "warmth > 0.035", "note": "整体偏暖（R 通道均值高于 B）"},
-    {"code": "TONE_COOL", "name_cn": "冷调", "rule": "warmth < -0.020", "note": "整体偏冷"},
-    {"code": "TONE_HIGH_SAT", "name_cn": "高饱和", "rule": "S_mean > 0.45", "note": "色彩浓烈"},
-    {"code": "TONE_LOW_SAT", "name_cn": "低饱和", "rule": "S_mean < 0.22", "note": "灰调、克制"},
-    {"code": "TONE_HIGH_CONTRAST", "name_cn": "高对比", "rule": "L_range > 0.72", "note": "明暗跨度大，硬朗"},
-    {"code": "TONE_LOW_CONTRAST", "name_cn": "柔和", "rule": "L_range < 0.45", "note": "明暗跨度小，柔"},
-    {"code": "TONE_HIGH_KEY", "name_cn": "高调", "rule": "L_mean > 0.62", "note": "整体明亮"},
-    {"code": "TONE_LOW_KEY", "name_cn": "低调", "rule": "L_mean < 0.28", "note": "整体暗"},
-    {"code": "TONE_LIFTED_BLACK", "name_cn": "黑位抬升", "rule": "L_p05 > 0.16", "note": "暗部不死黑，胶片/ins 的典型特征"}
+    {
+      "code": "TONE_WARM",
+      "name_cn": "暖调",
+      "rule": "warmth > 0.035",
+      "note": "整体偏暖（R 通道均值高于 B）",
+      "aliases": [
+        "偏暖"
+      ],
+      "description": "整体偏暖（R 通道均值高于 B）"
+    },
+    {
+      "code": "TONE_COOL",
+      "name_cn": "冷调",
+      "rule": "warmth < -0.020",
+      "note": "整体偏冷",
+      "aliases": [
+        "偏冷"
+      ],
+      "description": "整体偏冷"
+    },
+    {
+      "code": "TONE_HIGH_SAT",
+      "name_cn": "高饱和",
+      "rule": "S_mean > 0.45",
+      "note": "色彩浓烈",
+      "aliases": [
+        "浓烈色彩"
+      ],
+      "description": "色彩浓烈"
+    },
+    {
+      "code": "TONE_LOW_SAT",
+      "name_cn": "低饱和",
+      "rule": "S_mean < 0.22",
+      "note": "灰调、克制",
+      "aliases": [
+        "低彩度",
+        "克制色彩"
+      ],
+      "description": "灰调、克制"
+    },
+    {
+      "code": "TONE_HIGH_CONTRAST",
+      "name_cn": "高对比",
+      "rule": "L_range > 0.72",
+      "note": "明暗跨度大，硬朗",
+      "aliases": [
+        "硬朗"
+      ],
+      "description": "明暗跨度大，硬朗"
+    },
+    {
+      "code": "TONE_LOW_CONTRAST",
+      "name_cn": "柔和",
+      "rule": "L_range < 0.45",
+      "note": "明暗跨度小，柔",
+      "aliases": [
+        "低对比",
+        "柔和"
+      ],
+      "description": "明暗跨度小，柔"
+    },
+    {
+      "code": "TONE_HIGH_KEY",
+      "name_cn": "高调",
+      "rule": "L_mean > 0.62",
+      "note": "整体明亮",
+      "aliases": [
+        "明亮"
+      ],
+      "description": "整体明亮"
+    },
+    {
+      "code": "TONE_LOW_KEY",
+      "name_cn": "低调",
+      "rule": "L_mean < 0.28",
+      "note": "整体暗",
+      "aliases": [
+        "暗部多"
+      ],
+      "description": "整体暗"
+    },
+    {
+      "code": "TONE_LIFTED_BLACK",
+      "name_cn": "黑位抬升",
+      "rule": "L_p05 > 0.16",
+      "note": "暗部不死黑，胶片/ins 的典型特征",
+      "aliases": [
+        "抬黑",
+        "灰黑"
+      ],
+      "description": "暗部不死黑，胶片/ins 的典型特征"
+    }
   ],
-
   "LIGHT": [
-    {"code": "NATURAL", "name_cn": "自然光", "name_en": "Natural light", "prompt_en": "a photograph lit by natural daylight"},
-    {"code": "BACKLIGHT", "name_cn": "逆光", "name_en": "Backlight", "prompt_en": "a backlit photograph with rim light and glowing edges"},
-    {"code": "HARD", "name_cn": "硬光", "name_en": "Hard light", "prompt_en": "a photograph with hard directional light and sharp shadows"},
-    {"code": "SOFT", "name_cn": "柔光", "name_en": "Soft light", "prompt_en": "a photograph with soft diffused light"},
-    {"code": "NIGHT", "name_cn": "夜景", "name_en": "Night", "prompt_en": "a night photograph with artificial city lights"},
-    {"code": "FLASH", "name_cn": "闪光灯", "name_en": "Flash", "prompt_en": "a photograph shot with direct on-camera flash"}
+    {
+      "code": "NATURAL",
+      "name_cn": "自然光",
+      "name_en": "Natural light",
+      "prompt_en": "a photograph lit by natural daylight"
+    },
+    {
+      "code": "BACKLIGHT",
+      "name_cn": "逆光",
+      "name_en": "Backlight",
+      "prompt_en": "a backlit photograph with rim light and glowing edges"
+    },
+    {
+      "code": "HARD",
+      "name_cn": "硬光",
+      "name_en": "Hard light",
+      "prompt_en": "a photograph with hard directional light and sharp shadows"
+    },
+    {
+      "code": "SOFT",
+      "name_cn": "柔光",
+      "name_en": "Soft light",
+      "prompt_en": "a photograph with soft diffused light"
+    },
+    {
+      "code": "NIGHT",
+      "name_cn": "夜景",
+      "name_en": "Night",
+      "prompt_en": "a night photograph with artificial city lights"
+    },
+    {
+      "code": "FLASH",
+      "name_cn": "闪光灯",
+      "name_en": "Flash",
+      "prompt_en": "a photograph shot with direct on-camera flash"
+    }
   ],
-
   "OUTFIT": [
-    {"code": "COSPLAY", "name_cn": "Cosplay", "name_en": "Cosplay", "prompt_en": "a person wearing a cosplay costume"},
-    {"code": "HANFU", "name_cn": "汉服", "name_en": "Hanfu", "prompt_en": "a person wearing traditional chinese hanfu"},
-    {"code": "JK", "name_cn": "JK制服", "name_en": "JK uniform", "prompt_en": "a person wearing a japanese school uniform"},
-    {"code": "LOLITA", "name_cn": "Lolita", "name_en": "Lolita", "prompt_en": "a person wearing a lolita dress"},
-    {"code": "DAILY", "name_cn": "日常", "name_en": "Casual", "prompt_en": "a person wearing casual everyday clothes"},
-    {"code": "TECHWEAR", "name_cn": "机能风", "name_en": "Techwear", "prompt_en": "a person wearing techwear functional clothing"}
+    {
+      "code": "COSPLAY",
+      "name_cn": "Cosplay",
+      "name_en": "Cosplay",
+      "prompt_en": "a person wearing a cosplay costume"
+    },
+    {
+      "code": "HANFU",
+      "name_cn": "汉服",
+      "name_en": "Hanfu",
+      "prompt_en": "a person wearing traditional chinese hanfu"
+    },
+    {
+      "code": "JK",
+      "name_cn": "JK制服",
+      "name_en": "JK uniform",
+      "prompt_en": "a person wearing a japanese school uniform"
+    },
+    {
+      "code": "LOLITA",
+      "name_cn": "Lolita",
+      "name_en": "Lolita",
+      "prompt_en": "a person wearing a lolita dress"
+    },
+    {
+      "code": "DAILY",
+      "name_cn": "日常",
+      "name_en": "Casual",
+      "prompt_en": "a person wearing casual everyday clothes"
+    },
+    {
+      "code": "TECHWEAR",
+      "name_cn": "机能风",
+      "name_en": "Techwear",
+      "prompt_en": "a person wearing techwear functional clothing"
+    }
   ]
 }

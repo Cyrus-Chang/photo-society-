@@ -3,7 +3,7 @@
   {
    "id": "w-001",
    "title": "灯笼落在肩上",
-   "imageUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=86",
+   "imageUrl": "/works/unsplash/w-001.jpg",
    "photographerId": "p-001",
    "photographerName": "林初禾",
    "location": "西安 · 小寨",
@@ -23,7 +23,7 @@
   {
    "id": "w-002",
    "title": "风从城墙边经过",
-   "imageUrl": "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=86",
+   "imageUrl": "/works/unsplash/w-002.jpg",
    "photographerId": "p-002",
    "photographerName": "赵野",
    "location": "西安 · 城墙南门",
@@ -43,7 +43,7 @@
   {
    "id": "w-003",
    "title": "红墙边的半分钟",
-   "imageUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=86",
+   "imageUrl": "/works/unsplash/w-003.jpg",
    "photographerId": "p-003",
    "photographerName": "周末",
    "location": "西安 · 大雁塔",
@@ -63,7 +63,7 @@
   {
    "id": "w-004",
    "title": "把风留在海边",
-   "imageUrl": "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=86",
+   "imageUrl": "/works/unsplash/w-004.jpg",
    "photographerId": "p-001",
    "photographerName": "林初禾",
    "location": "青岛 · 小麦岛",
@@ -83,7 +83,7 @@
   {
    "id": "w-005",
    "title": "一束光的肖像",
-   "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=86",
+   "imageUrl": "/works/unsplash/w-005.jpg",
    "photographerId": "p-002",
    "photographerName": "赵野",
    "location": "西安 · 曲江",
@@ -103,7 +103,7 @@
   {
    "id": "w-006",
    "title": "回到街角",
-   "imageUrl": "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=900&q=86",
+   "imageUrl": "/works/unsplash/w-006.jpg",
    "photographerId": "p-003",
    "photographerName": "周末",
    "location": "成都 · 玉林",
@@ -1126,6 +1126,75 @@
    "canBook": false,
    "matchReason": "",
    "story": "老师有点懒，这张照片少了点故事......."
+  },
+  {
+   "id": "xdg-01",
+   "title": "晴空下的城楼",
+   "imageUrl": "/src/assets/works/tiananmen.webp",
+   "photographerId": "p-schedinger",
+   "photographerName": "薛定谔",
+   "location": "北京 · 天安门",
+   "city": "北京",
+   "styles": [
+    "建筑",
+    "纪实",
+    "晴天"
+   ],
+   "types": [
+    "建筑",
+    "城市"
+   ],
+   "device": "待补充",
+   "shootDate": "作品集 · 城市记录",
+   "canBook": false,
+   "matchReason": "晴空与城楼的色彩关系",
+   "story": ""
+  },
+  {
+   "id": "xdg-02",
+   "title": "经幡在风里",
+   "imageUrl": "/src/assets/works/prayer-flags.webp",
+   "photographerId": "p-schedinger",
+   "photographerName": "薛定谔",
+   "location": "西藏",
+   "city": "西藏",
+   "styles": [
+    "高饱和",
+    "色彩",
+    "仰拍"
+   ],
+   "types": [
+    "风景",
+    "文化"
+   ],
+   "device": "DJI Osmo Pocket 4",
+   "shootDate": "作品集 · 色彩记录",
+   "canBook": false,
+   "matchReason": "仰拍视角里的经幡与天色",
+   "story": ""
+  },
+  {
+   "id": "xdg-03",
+   "title": "银河落在这条路上",
+   "imageUrl": "/src/assets/works/milky-way.webp",
+   "photographerId": "p-schedinger",
+   "photographerName": "薛定谔",
+   "location": "西藏",
+   "city": "西藏",
+   "styles": [
+    "星空",
+    "蓝调",
+    "夜色"
+   ],
+   "types": [
+    "风景",
+    "夜景"
+   ],
+   "device": "待补充",
+   "shootDate": "作品集 · 星空记录",
+   "canBook": false,
+   "matchReason": "银河与地面人间的同框",
+   "story": ""
   }
  ],
  "spiralWorks": [
@@ -1609,7 +1678,7 @@
   }
  ],
  "counts": {
-  "works": 50,
+  "works": 53,
   "spiralWorks": 16,
   "photographers": 7
  }
